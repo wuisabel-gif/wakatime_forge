@@ -56,6 +56,12 @@
             </p>
           </div>
 
+          <div class="mt-5 grid gap-2 sm:grid-cols-3">
+            <button data-preset="minimal" class="preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Minimal</button>
+            <button data-preset="balanced" class="preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Balanced</button>
+            <button data-preset="full" class="preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Full</button>
+          </div>
+
           <div class="mt-6 space-y-5">
             <label class="block">
               <span class="text-sm font-medium text-slate-800">Workflow schedule</span>
@@ -92,8 +98,18 @@
                 <span>Compact mode</span>
               </label>
             </div>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-800">Preview style</span>
+              <select id="preview-style" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
+                <option value="standard">Standard README block</option>
+                <option value="compact">Compact README block</option>
+              </select>
+            </label>
           </div>
         </div>
+
+        <div id="validation-panel" class="hidden rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"></div>
 
         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Metrics</h2>
@@ -120,13 +136,17 @@
             </label>
             <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
               <span>Operating systems</span>
-              <input data-metric="os" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+              <input data-metric="operating_system" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Profile views</span>
+              <input data-metric="profile_views" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
             </label>
           </div>
         </div>
 
-        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          <strong class="font-semibold">Still rough:</strong> custom title display and compact output are wired in, but a few workflow flags still need a review pass before this is ready for release.
+        <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 shadow-sm">
+          <strong class="font-semibold text-slate-800">Progress note:</strong> presets, validation, and output safeguards are in place. The next pass should polish responsive layout and expand metric coverage.
         </div>
       </section>
 
@@ -137,14 +157,19 @@
               <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Live README Preview</h2>
               <p id="summary-text" class="mt-1 text-xs text-slate-500"></p>
             </div>
-            <button id="refresh-preview" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Refresh</button>
+            <div class="flex gap-2">
+              <button id="toggle-preview-theme" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Dark Preview</button>
+              <button id="refresh-preview" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Refresh</button>
+            </div>
           </div>
           <div class="p-5">
-            <div class="rounded-md border border-slate-200 bg-slate-50 p-4">
+            <div id="preview-shell" class="rounded-md border border-slate-200 bg-slate-50 p-4">
               <div id="readme-preview" class="font-mono text-sm leading-7 text-slate-800"></div>
             </div>
           </div>
         </div>
+
+        <div id="status-panel" class="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-3"></div>
 
         <div class="grid gap-6 xl:grid-cols-2">
           <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -170,7 +195,10 @@
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
           <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
             <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">GitHub Actions YAML</h2>
-            <button id="copy-yaml" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
+            <div class="flex gap-2">
+              <button id="download-yaml" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Download</button>
+              <button id="copy-yaml" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
+            </div>
           </div>
           <pre id="yaml-output" class="max-h-[460px] overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
         </div>
@@ -193,12 +221,58 @@
       metrics: ['total', 'commit', 'language', 'project']
     };
 
+    const presets = {
+      minimal: {
+        cron: '0 0 * * *',
+        title: 'Coding Stats',
+        timeRange: 'last_7_days',
+        compactMode: true,
+        previewStyle: 'compact',
+        metrics: ['total', 'language']
+      },
+      balanced: {
+        cron: '0 0 * * *',
+        title: 'WakaTime Activity Stats',
+        timeRange: 'last_30_days',
+        compactMode: false,
+        previewStyle: 'standard',
+        metrics: ['total', 'commit', 'language', 'project']
+      },
+      full: {
+        cron: '0 */6 * * *',
+        title: 'Developer Activity',
+        timeRange: 'all_time',
+        compactMode: false,
+        previewStyle: 'standard',
+        metrics: ['total', 'commit', 'language', 'project', 'editor', 'operating_system', 'profile_views']
+      }
+    };
+
+    const fallbackWorkflowYaml = `name: WakaTime README Stats
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: anmol098/waka-readme-stats@master
+        with:
+          WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }}
+          GH_TOKEN: \${{ secrets.GH_TOKEN }}
+          SHOW_TOTAL_CODE_TIME: "True"`;
+
+    let darkPreview = false;
+
     function getSelectedMetrics() {
       const selected = Array.from(document.querySelectorAll('.metric-toggle'))
         .filter((input) => input.checked)
         .map((input) => input.dataset.metric);
 
-      return selected.length ? selected : defaults.metrics;
+      return selected;
     }
 
     function getConfig() {
@@ -206,19 +280,32 @@
         cron: document.getElementById('cron-select').value || defaults.cron,
         title: document.getElementById('section-title').value.trim() || defaults.title,
         timeRange: document.getElementById('time-range').value || defaults.timeRange,
+        previewStyle: document.getElementById('preview-style').value || 'standard',
         showTitle: document.getElementById('show-title').checked,
         compactMode: document.getElementById('compact-mode').checked,
         metrics: getSelectedMetrics()
       };
     }
 
+    function escapeYaml(value) {
+      return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    }
+
+    function metricsForOutput(config) {
+      return config.metrics.length ? config.metrics : ['total'];
+    }
+
     function generateWorkflowYaml(config) {
-      return `name: WakaTime README Stats
+      try {
+        const safeTitle = config.title || defaults.title;
+        const safeCron = config.cron || defaults.cron;
+        const safeMetrics = metricsForOutput(config);
+        const yaml = `name: WakaTime README Stats
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "${config.cron}"
+    - cron: "${safeCron}"
 
 jobs:
   update-readme:
@@ -229,35 +316,101 @@ jobs:
           WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }}
           GH_TOKEN: \${{ secrets.GH_TOKEN }}
           SHOW_TITLE: "${config.showTitle ? 'True' : 'False'}"
-          SECTION_NAME: "${config.title}"
+          SECTION_NAME: "${escapeYaml(safeTitle)}"
           TIME_RANGE: "${config.timeRange}"
-          SHOW_TOTAL_CODE_TIME: "${config.metrics.includes('total') ? 'True' : 'False'}"
-          SHOW_COMMIT: "${config.metrics.includes('commit') ? 'True' : 'False'}"
-          SHOW_LANGUAGE: "${config.metrics.includes('language') ? 'True' : 'False'}"
-          SHOW_PROJECTS: "${config.metrics.includes('project') ? 'True' : 'False'}"
-          SHOW_EDITORS: "${config.metrics.includes('editor') ? 'True' : 'False'}"
-          SHOW_OS: "${config.metrics.includes('operating_system') ? 'True' : 'False'}"`;
+          SHOW_SHORT_INFO: "${config.compactMode ? 'True' : 'False'}"
+          SHOW_TOTAL_CODE_TIME: "${safeMetrics.includes('total') ? 'True' : 'False'}"
+          SHOW_COMMIT: "${safeMetrics.includes('commit') ? 'True' : 'False'}"
+          SHOW_LANGUAGE: "${safeMetrics.includes('language') ? 'True' : 'False'}"
+          SHOW_PROJECTS: "${safeMetrics.includes('project') ? 'True' : 'False'}"
+          SHOW_EDITORS: "${safeMetrics.includes('editor') ? 'True' : 'False'}"
+          SHOW_OS: "${safeMetrics.includes('operating_system') ? 'True' : 'False'}"
+          SHOW_PROFILE_VIEWS: "${safeMetrics.includes('profile_views') ? 'True' : 'False'}"`;
+        return yaml.trim() || fallbackWorkflowYaml;
+      } catch (error) {
+        return fallbackWorkflowYaml;
+      }
     }
 
     function renderPreview(config) {
       const markerLines = readmeMarkers.split('\n');
-      const previewLines = [
+      const visibleMetrics = metricsForOutput(config);
+      const standardLines = [
         markerLines[0],
         config.showTitle ? config.title : '',
-        config.metrics.includes('total') ? `Total code time: 49 hrs 18 mins (${config.timeRange})` : '',
-        config.metrics.includes('commit') ? 'Commits: 143 · Current streak: 12 days' : '',
-        config.metrics.includes('language') ? 'Languages: TypeScript 45%, JavaScript 15%, Python 5%' : '',
-        config.metrics.includes('project') ? 'Projects: WakaForge, Portfolio, Docs' : '',
-        config.metrics.includes('editor') ? 'Editors: VS Code, Neovim' : '',
+        visibleMetrics.includes('total') ? `Total code time: 49 hrs 18 mins (${config.timeRange})` : '',
+        visibleMetrics.includes('commit') ? 'Commits: 143 · Current streak: 12 days' : '',
+        visibleMetrics.includes('language') ? 'Languages: TypeScript 45%, JavaScript 15%, Python 5%' : '',
+        visibleMetrics.includes('project') ? 'Projects: WakaForge, Portfolio, Docs' : '',
+        visibleMetrics.includes('editor') ? 'Editors: VS Code, Neovim' : '',
+        visibleMetrics.includes('operating_system') ? 'OS: macOS 75%, Linux 25%' : '',
+        visibleMetrics.includes('profile_views') ? 'Profile views: 2,410' : '',
         markerLines[1]
       ].filter(Boolean);
 
+      const compactLines = [
+        markerLines[0],
+        config.showTitle ? config.title : '',
+        [
+          visibleMetrics.includes('total') ? '49h code time' : '',
+          visibleMetrics.includes('commit') ? '143 commits' : '',
+          visibleMetrics.includes('language') ? 'TypeScript 45%' : '',
+          visibleMetrics.includes('project') ? '3 projects' : ''
+        ].filter(Boolean).join(' · '),
+        markerLines[1]
+      ].filter(Boolean);
+
+      const previewLines = config.compactMode || config.previewStyle === 'compact' ? compactLines : standardLines;
       document.getElementById('readme-preview').innerText = previewLines.join('\n');
     }
 
+    function validateConfig(config) {
+      const messages = [];
+      if (config.title.length > 48) messages.push('Section title is long and may wrap awkwardly in a README.');
+      if (!config.metrics.length) messages.push('At least one metric should be selected. The YAML falls back to total code time.');
+      if (config.compactMode && config.previewStyle !== 'compact') messages.push('Compact mode is enabled, so the preview uses compact output.');
+      return messages;
+    }
+
+    function renderValidation(config) {
+      const panel = document.getElementById('validation-panel');
+      const messages = validateConfig(config);
+      panel.classList.toggle('hidden', !messages.length);
+      panel.innerHTML = messages.map((message) => `<div>${message}</div>`).join('');
+    }
+
     function renderSummary(config) {
-      const metricCount = config.metrics.length;
-      document.getElementById('summary-text').innerText = `${metricCount} metrics selected · schedule ${config.cron}`;
+      const metricCount = metricsForOutput(config).length;
+      const mode = config.compactMode || config.previewStyle === 'compact' ? 'compact preview' : 'standard preview';
+      document.getElementById('summary-text').innerText = `${metricCount} metrics selected · ${mode} · schedule ${config.cron}`;
+    }
+
+    function renderStatus(config) {
+      const rows = [
+        ['Schedule', config.cron],
+        ['Output', config.compactMode ? 'Compact YAML enabled' : 'Standard YAML'],
+        ['Metrics', config.metrics.length ? `${config.metrics.length} selected` : 'fallback enabled']
+      ];
+      document.getElementById('status-panel').innerHTML = rows.map(([label, value]) => `
+        <div class="rounded-md border border-slate-200 p-3">
+          <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">${label}</div>
+          <div class="mt-1 font-medium text-slate-800">${value}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderPreviewTheme() {
+      const shell = document.getElementById('preview-shell');
+      const preview = document.getElementById('readme-preview');
+      const button = document.getElementById('toggle-preview-theme');
+
+      shell.className = darkPreview
+        ? 'rounded-md border border-slate-700 bg-slate-950 p-4'
+        : 'rounded-md border border-slate-200 bg-slate-50 p-4';
+      preview.className = darkPreview
+        ? 'font-mono text-sm leading-7 text-slate-100'
+        : 'font-mono text-sm leading-7 text-slate-800';
+      button.innerText = darkPreview ? 'Light Preview' : 'Dark Preview';
     }
 
     function render() {
@@ -266,27 +419,69 @@ jobs:
       document.getElementById('yaml-output').innerText = generateWorkflowYaml(config);
       renderPreview(config);
       renderSummary(config);
+      renderStatus(config);
+      renderValidation(config);
+      renderPreviewTheme();
     }
 
-    function copyText(id, button) {
+    async function copyText(id, button) {
       const value = document.getElementById(id).innerText.trim();
-      navigator.clipboard.writeText(value);
       const label = button.innerText;
-      button.innerText = 'Copied';
-      setTimeout(() => {
-        button.innerText = label;
-      }, 1200);
+      try {
+        await navigator.clipboard.writeText(value);
+        button.innerText = 'Copied';
+      } catch (error) {
+        button.innerText = 'Copy failed';
+      } finally {
+        setTimeout(() => {
+          button.innerText = label;
+        }, 1200);
+      }
+    }
+
+    function applyPreset(name) {
+      const preset = presets[name] || presets.balanced;
+      document.getElementById('cron-select').value = preset.cron;
+      document.getElementById('section-title').value = preset.title;
+      document.getElementById('time-range').value = preset.timeRange;
+      document.getElementById('preview-style').value = preset.previewStyle;
+      document.getElementById('compact-mode').checked = preset.compactMode;
+      document.getElementById('show-title').checked = true;
+      document.querySelectorAll('.metric-toggle').forEach((input) => {
+        input.checked = preset.metrics.includes(input.dataset.metric);
+      });
+      render();
+    }
+
+    function downloadYaml() {
+      const yaml = document.getElementById('yaml-output').innerText.trim() || fallbackWorkflowYaml;
+      const blob = new Blob([yaml], { type: 'text/yaml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'waka-stats.yml';
+      link.click();
+      URL.revokeObjectURL(url);
     }
 
     document.getElementById('cron-select').addEventListener('change', render);
     document.getElementById('section-title').addEventListener('input', render);
     document.getElementById('time-range').addEventListener('change', render);
+    document.getElementById('preview-style').addEventListener('change', render);
     document.getElementById('show-title').addEventListener('change', render);
     document.getElementById('compact-mode').addEventListener('change', render);
     document.querySelectorAll('.metric-toggle').forEach((input) => input.addEventListener('change', render));
+    document.querySelectorAll('.preset-button').forEach((button) => {
+      button.addEventListener('click', () => applyPreset(button.dataset.preset));
+    });
+    document.getElementById('toggle-preview-theme').addEventListener('click', () => {
+      darkPreview = !darkPreview;
+      renderPreviewTheme();
+    });
     document.getElementById('refresh-preview').addEventListener('click', render);
     document.getElementById('copy-markers').addEventListener('click', (event) => copyText('markers-output', event.currentTarget));
     document.getElementById('copy-yaml').addEventListener('click', (event) => copyText('yaml-output', event.currentTarget));
+    document.getElementById('download-yaml').addEventListener('click', downloadYaml);
     render();
   </script>
 </body>
