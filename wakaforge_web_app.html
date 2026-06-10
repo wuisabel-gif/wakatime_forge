@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
@@ -34,65 +34,110 @@
 <body class="bg-slate-50 text-slate-950">
   <div class="min-h-screen">
     <header class="border-b border-slate-200 bg-white">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-lg font-semibold tracking-tight">WakaTime YAML Generator</h1>
-          <p class="mt-1 text-sm text-slate-500">Draft a GitHub Actions workflow for README stats.</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">WakaForge</p>
+          <h1 class="mt-1 text-2xl font-bold tracking-tight">WakaTime YAML Generator</h1>
+          <p class="mt-1 text-sm text-slate-500">Build a README stats workflow for GitHub profile repositories.</p>
         </div>
-        <a class="text-sm font-medium text-slate-600 underline underline-offset-4" href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer">
-          waka-readme-stats
+        <a class="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer">
+          Original Action
         </a>
       </div>
     </header>
 
-    <main class="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[380px_1fr]">
-      <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div>
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Basic Settings</h2>
-          <p class="mt-2 text-sm leading-6 text-slate-600">
-            This first pass supports the default action, schedule, and a small set of display options.
-          </p>
-        </div>
-
-        <div class="mt-6 space-y-5">
-          <label class="block">
-            <span class="text-sm font-medium text-slate-800">Schedule</span>
-            <select id="cron-select" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
-              <option value="0 0 * * *">Daily at midnight</option>
-              <option value="0 */6 * * *">Every 6 hours</option>
-              <option value="0 0 * * 0">Weekly on Sunday</option>
-            </select>
-          </label>
-
-          <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-            <input id="show-title" type="checkbox" checked class="h-4 w-4 rounded border-slate-300">
-            <span>Show section title</span>
-          </label>
-
+    <main class="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[400px_1fr]">
+      <section class="space-y-6">
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <div>
-            <p class="text-sm font-medium text-slate-800">Metrics</p>
-            <div class="mt-2 space-y-2">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Configuration</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-600">
+              Choose the schedule, display name, and stats that should be passed into the workflow.
+            </p>
+          </div>
+
+          <div class="mt-6 space-y-5">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-800">Workflow schedule</span>
+              <select id="cron-select" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
+                <option value="0 0 * * *">Daily at midnight</option>
+                <option value="0 */6 * * *">Every 6 hours</option>
+                <option value="0 0 * * 0">Weekly on Sunday</option>
+                <option value="0 0 1 * *">Monthly on the 1st</option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-800">Section title</span>
+              <input id="section-title" value="WakaTime Activity Stats" class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500">
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-medium text-slate-800">Time range</span>
+              <select id="time-range" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
+                <option value="last_7_days">Last 7 days</option>
+                <option value="last_30_days">Last 30 days</option>
+                <option value="last_year">Last year</option>
+                <option value="all_time">All time</option>
+              </select>
+            </label>
+
+            <div class="grid gap-2 sm:grid-cols-2">
               <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input data-metric="total" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-                <span>Total code time</span>
+                <input id="show-title" type="checkbox" checked class="h-4 w-4 rounded border-slate-300">
+                <span>Show title</span>
               </label>
               <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input data-metric="commit" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-                <span>Commit stats</span>
-              </label>
-              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input data-metric="language" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-                <span>Language stats</span>
+                <input id="compact-mode" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span>Compact mode</span>
               </label>
             </div>
           </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Metrics</h2>
+          <div class="mt-4 grid gap-2">
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Total code time</span>
+              <input data-metric="total" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Commit stats</span>
+              <input data-metric="commit" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Language stats</span>
+              <input data-metric="language" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Project stats</span>
+              <input data-metric="project" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Editor stats</span>
+              <input data-metric="editor" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Operating systems</span>
+              <input data-metric="os" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+          <strong class="font-semibold">Still rough:</strong> custom title display and compact output are wired in, but a few workflow flags still need a review pass before this is ready for release.
         </div>
       </section>
 
       <section class="space-y-6">
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-200 px-5 py-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">README Preview</h2>
+          <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+            <div>
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Live README Preview</h2>
+              <p id="summary-text" class="mt-1 text-xs text-slate-500"></p>
+            </div>
+            <button id="refresh-preview" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Refresh</button>
           </div>
           <div class="p-5">
             <div class="rounded-md border border-slate-200 bg-slate-50 p-4">
@@ -101,12 +146,25 @@
           </div>
         </div>
 
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">README Markers</h2>
-            <button id="copy-markers" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
+        <div class="grid gap-6 xl:grid-cols-2">
+          <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">README Markers</h2>
+              <button id="copy-markers" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
+            </div>
+            <pre id="markers-output" class="min-h-28 overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
           </div>
-          <pre id="markers-output" class="overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+
+          <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Install Notes</h2>
+            </div>
+            <ol class="space-y-3 p-5 text-sm leading-6 text-slate-600">
+              <li><strong>1.</strong> Add the README markers to your profile repository.</li>
+              <li><strong>2.</strong> Add <code>WAKATIME_API_KEY</code> and <code>GH_TOKEN</code> as repository secrets.</li>
+              <li><strong>3.</strong> Save the workflow as <code>.github/workflows/waka-stats.yml</code>.</li>
+            </ol>
+          </div>
         </div>
 
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -114,7 +172,7 @@
             <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">GitHub Actions YAML</h2>
             <button id="copy-yaml" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
           </div>
-          <pre id="yaml-output" class="max-h-[420px] overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+          <pre id="yaml-output" class="max-h-[460px] overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
         </div>
 
         <p class="text-xs leading-5 text-slate-500">
@@ -130,19 +188,27 @@
 
     const defaults = {
       cron: '0 0 * * *',
-      showTitle: true,
-      metrics: ['total', 'commit', 'language']
+      title: 'WakaTime Activity Stats',
+      timeRange: 'last_7_days',
+      metrics: ['total', 'commit', 'language', 'project']
     };
 
-    function getConfig() {
-      const selectedMetrics = Array.from(document.querySelectorAll('.metric-toggle'))
+    function getSelectedMetrics() {
+      const selected = Array.from(document.querySelectorAll('.metric-toggle'))
         .filter((input) => input.checked)
         .map((input) => input.dataset.metric);
 
+      return selected.length ? selected : defaults.metrics;
+    }
+
+    function getConfig() {
       return {
         cron: document.getElementById('cron-select').value || defaults.cron,
+        title: document.getElementById('section-title').value.trim() || defaults.title,
+        timeRange: document.getElementById('time-range').value || defaults.timeRange,
         showTitle: document.getElementById('show-title').checked,
-        metrics: selectedMetrics.length ? selectedMetrics : defaults.metrics
+        compactMode: document.getElementById('compact-mode').checked,
+        metrics: getSelectedMetrics()
       };
     }
 
@@ -163,22 +229,35 @@ jobs:
           WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }}
           GH_TOKEN: \${{ secrets.GH_TOKEN }}
           SHOW_TITLE: "${config.showTitle ? 'True' : 'False'}"
+          SECTION_NAME: "${config.title}"
+          TIME_RANGE: "${config.timeRange}"
           SHOW_TOTAL_CODE_TIME: "${config.metrics.includes('total') ? 'True' : 'False'}"
           SHOW_COMMIT: "${config.metrics.includes('commit') ? 'True' : 'False'}"
-          SHOW_LANGUAGE: "${config.metrics.includes('language') ? 'True' : 'False'}"`;
+          SHOW_LANGUAGE: "${config.metrics.includes('language') ? 'True' : 'False'}"
+          SHOW_PROJECTS: "${config.metrics.includes('project') ? 'True' : 'False'}"
+          SHOW_EDITORS: "${config.metrics.includes('editor') ? 'True' : 'False'}"
+          SHOW_OS: "${config.metrics.includes('operating_system') ? 'True' : 'False'}"`;
     }
 
     function renderPreview(config) {
-      const lines = [
-        readmeMarkers.split('\n')[0],
-        config.showTitle ? 'WakaTime Activity Stats' : '',
-        config.metrics.includes('total') ? 'Total code time: 49 hrs 18 mins' : '',
-        config.metrics.includes('commit') ? 'Commits: 143' : '',
-        config.metrics.includes('language') ? 'Languages: TypeScript, JavaScript, Python' : '',
-        readmeMarkers.split('\n')[1]
+      const markerLines = readmeMarkers.split('\n');
+      const previewLines = [
+        markerLines[0],
+        config.showTitle ? config.title : '',
+        config.metrics.includes('total') ? `Total code time: 49 hrs 18 mins (${config.timeRange})` : '',
+        config.metrics.includes('commit') ? 'Commits: 143 · Current streak: 12 days' : '',
+        config.metrics.includes('language') ? 'Languages: TypeScript 45%, JavaScript 15%, Python 5%' : '',
+        config.metrics.includes('project') ? 'Projects: WakaForge, Portfolio, Docs' : '',
+        config.metrics.includes('editor') ? 'Editors: VS Code, Neovim' : '',
+        markerLines[1]
       ].filter(Boolean);
 
-      document.getElementById('readme-preview').innerText = lines.join('\n');
+      document.getElementById('readme-preview').innerText = previewLines.join('\n');
+    }
+
+    function renderSummary(config) {
+      const metricCount = config.metrics.length;
+      document.getElementById('summary-text').innerText = `${metricCount} metrics selected · schedule ${config.cron}`;
     }
 
     function render() {
@@ -186,6 +265,7 @@ jobs:
       document.getElementById('markers-output').innerText = readmeMarkers;
       document.getElementById('yaml-output').innerText = generateWorkflowYaml(config);
       renderPreview(config);
+      renderSummary(config);
     }
 
     function copyText(id, button) {
@@ -199,8 +279,12 @@ jobs:
     }
 
     document.getElementById('cron-select').addEventListener('change', render);
+    document.getElementById('section-title').addEventListener('input', render);
+    document.getElementById('time-range').addEventListener('change', render);
     document.getElementById('show-title').addEventListener('change', render);
+    document.getElementById('compact-mode').addEventListener('change', render);
     document.querySelectorAll('.metric-toggle').forEach((input) => input.addEventListener('change', render));
+    document.getElementById('refresh-preview').addEventListener('click', render);
     document.getElementById('copy-markers').addEventListener('click', (event) => copyText('markers-output', event.currentTarget));
     document.getElementById('copy-yaml').addEventListener('click', (event) => copyText('yaml-output', event.currentTarget));
     render();
