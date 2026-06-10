@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wakatime YAML online generator</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderWidth: {
+            '850': '1px',
+          },
+          colors: {
+            zinc: {
+              850: '#202024'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #d4d4d8;
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .switch-thumb {
+      transition: transform 0.2s;
+    }
+
+    .generated-code-panel {
+      background: #f8fafc;
+    }
+
+    .generated-code {
+      color: #111827;
+      text-shadow: none;
+    }
+
+    .dark .generated-code-panel {
+      background: #0f172a;
+    }
+
+    .dark .generated-code {
+      color: #e5e7eb;
+    }
+  </style>
+</head>
+<body class="transition-colors duration-200">
+
+  <div id="app-root" class="min-h-screen flex flex-col antialiased">
+    
+    <header class="border-b border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-2.5">
+          <div class="border border-zinc-200 dark:border-zinc-800 p-2 rounded-md bg-zinc-100 dark:bg-zinc-900 shadow-xs">
+            <svg class="w-5 h-5 text-zinc-900 dark:text-zinc-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-md font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              wakatime YAML online generator
+            </h1>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Configure WakaTime README stats workflows</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-1 border border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-zinc-900 p-0.5 rounded-lg text-[11px]">
+            <span class="px-2 text-zinc-400 dark:text-zinc-500 font-medium">Presets:</span>
+            <button onclick="applyPreset('minimalist')" class="px-2.5 py-1 font-semibold rounded-md hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+              🍃 Minimal
+            </button>
+            <button onclick="applyPreset('git-focused')" class="px-2.5 py-1 font-semibold rounded-md hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+              💻 Git Flow
+            </button>
+            <button onclick="applyPreset('full-spectrum')" class="px-2.5 py-1 font-semibold rounded-md hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+              🔥 Max Stats
+            </button>
+          </div>
+
+          <button onclick="toggleThemeMode()" class="p-2 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+            <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m12.728 12.728l.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="theme-icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <section class="lg:col-span-6 flex flex-col gap-6">
+        
+        <div class="bg-zinc-100 dark:bg-zinc-900 p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 flex gap-1">
+          <button onclick="setActiveTab('identity')" id="tab-btn-identity" class="flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all">
+            Identity & Style
+          </button>
+          <button onclick="setActiveTab('metrics')" id="tab-btn-metrics" class="flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all">
+            Data Metrics
+          </button>
+          <button onclick="setActiveTab('frequency')" id="tab-btn-frequency" class="flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all">
+            Automation
+          </button>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-950 p-5 md:p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs flex flex-col justify-between min-h-[460px]">
+          
+          <div id="tab-panel-identity" class="space-y-6 hidden">
+            <div>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Dashboard Identity</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Establish standard visual constraints, custom header parameters, and titles.</p>
+            </div>
+
+            <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
+              <div class="space-y-0.5">
+                <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-200">Show Section Title</label>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Toggle whether to render the block title in the markdown.</p>
+              </div>
+              <button onclick="toggleConfig('showTitle')" id="switch-showTitle" class="w-9 h-5 rounded-full transition-colors relative flex items-center bg-zinc-250 dark:bg-zinc-800">
+                <span class="switch-thumb block w-3.5 h-3.5 rounded-full bg-white shadow-xs translate-x-1"></span>
+              </button>
+            </div>
+
+            <div id="title-controls-panel" class="space-y-4 p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/80 animate-fadeIn hidden">
+              <div class="space-y-2">
+                <span class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Title Type</span>
+                <div class="flex gap-2">
+                  <button onclick="handleTitleTypeChange('default')" id="btn-title-default" class="flex-1 py-1.5 text-xs font-semibold rounded-md border text-center transition">
+                    Default stats
+                  </button>
+                  <button onclick="handleTitleTypeChange('custom')" id="btn-title-custom" class="flex-1 py-1.5 text-xs font-semibold rounded-md border text-center transition">
+                    Custom Title
+                  </button>
+                </div>
+              </div>
+
+              <div id="custom-title-input-wrapper" class="space-y-1 hidden animate-fadeIn">
+                <label class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">Custom Section Name</label>
+                <input type="text" id="custom-title-input" oninput="handleCustomTitleInput(this.value)" class="w-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 rounded-md px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400" />
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">Header Icon Style</label>
+                <div class="grid grid-cols-3 gap-1.5" id="emoji-options-grid"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 pt-1">
+              <div class="space-y-0.5">
+                <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-200">Compact Mode Layout</label>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Compress formatting parameters to fit small markdown grids.</p>
+              </div>
+              <button onclick="toggleConfig('compactMode')" id="switch-compactMode" class="w-9 h-5 rounded-full transition-colors relative flex items-center bg-zinc-250 dark:bg-zinc-800">
+                <span class="switch-thumb block w-3.5 h-3.5 rounded-full bg-white shadow-xs translate-x-1"></span>
+              </button>
+            </div>
+
+            <div class="space-y-2 pt-2">
+              <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-200 block">Statistical Time Window</label>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="timeframe-options-grid"></div>
+            </div>
+          </div>
+
+          <div id="tab-panel-metrics" class="space-y-6 hidden">
+            <div>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Visual Charts & Metrics Filter</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Select what is rendered. Dependencies will auto-resolve.</p>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Visual Charts</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="diagrams-grid"></div>
+            </div>
+
+            <div class="space-y-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Additional Data Metrics</label>
+              <div class="max-h-[160px] overflow-y-auto pr-1 space-y-1.5 custom-scrollbar" id="metrics-scroller"></div>
+            </div>
+          </div>
+
+          <div id="tab-panel-frequency" class="space-y-6 hidden">
+            <div>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Frequency & Automation</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Configure how often GitHub Actions triggers a parse rebuild to update your README markdown.</p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="frequency-grid"></div>
+
+              <div class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 flex items-start gap-3">
+                <div class="p-1 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-300 shrink-0">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-0.5">WakaForge Cron Explanation</h4>
+                  <p class="text-[10px] text-zinc-400 dark:text-zinc-500 leading-relaxed">
+                    GitHub Actions operates scheduling using UTC. Your selected interval is converted to a simple cron syntax automatically. You will never have to manually write standard cron strings like <code class="text-zinc-900 dark:text-zinc-200 font-mono bg-zinc-200 dark:bg-zinc-850 px-1 rounded">0 0 * * *</code> inside your configurations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 mt-6 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-[10px] tracking-wider text-zinc-400 uppercase font-bold">Synced</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button onclick="handleBackStep()" id="btn-back-step" class="px-3 py-1.5 rounded-md text-xs bg-transparent border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 transition disabled:opacity-50 disabled:pointer-events-none">
+                Back
+              </button>
+              <button onclick="handleContinueStep()" id="btn-continue-step" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-sm transition flex items-center gap-1.5">
+                Continue
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 overflow-hidden shadow-sm">
+          <div class="p-4 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Step-by-Step Integration Guide
+            </span>
+          </div>
+
+          <div class="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs">
+            <div class="p-3.5">
+              <button onclick="setExpandedStep(1)" class="w-full flex items-center justify-between text-left">
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold flex items-center justify-center border border-zinc-200 dark:border-zinc-800">1</span>
+                  Expose Your WakaTime Token
+                </span>
+                <span id="step-arrow-1" class="text-zinc-450 text-[10px]">▼</span>
+              </button>
+              <div id="step-desc-1" class="mt-2 pl-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-1.5 animate-fadeIn hidden">
+                <p>Go to your <a href="https://wakatime.com/settings/account" target="_blank" rel="noopener noreferrer" class="text-zinc-900 dark:text-zinc-100 underline underline-offset-2">WakaTime Account Settings</a> page.</p>
+                <p>Ensure that <strong class="text-zinc-800 dark:text-zinc-200">Display Coding Activity</strong> and <strong className="text-zinc-800 dark:text-zinc-200">Display Languages</strong> are visible publicly in settings, and copy your secret API key.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5">
+              <button onclick="setExpandedStep(2)" class="w-full flex items-center justify-between text-left">
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold flex items-center justify-center border border-zinc-200 dark:border-zinc-800">2</span>
+                  Configure GitHub Actions Secrets
+                </span>
+                <span id="step-arrow-2" class="text-zinc-450 text-[10px]">▼</span>
+              </button>
+              <div id="step-desc-2" class="mt-2 pl-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2 animate-fadeIn hidden">
+                <p>Navigate to your public GitHub profile repository settings.</p>
+                <div class="space-y-1.5 bg-zinc-50 dark:bg-zinc-900 p-2.5 rounded border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-zinc-700 dark:text-zinc-350">
+                  <div>🔑 <strong class="text-zinc-950 dark:text-zinc-50">WAKATIME_API_KEY</strong>: Paste your key from Step 1.</div>
+                  <div>🔑 <strong class="text-zinc-950 dark:text-zinc-50">GH_TOKEN</strong>: Create a GitHub PAT with repo scope & paste here.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3.5">
+              <button onclick="setExpandedStep(3)" class="w-full flex items-center justify-between text-left">
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold flex items-center justify-center border border-zinc-200 dark:border-zinc-800">3</span>
+                  Paste README Markers & Deploy Workflow
+                </span>
+                <span id="step-arrow-3" class="text-zinc-450 text-[10px]">▼</span>
+              </button>
+              <div id="step-desc-3" class="mt-2 pl-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2 animate-fadeIn hidden">
+                <p>Open your repository's <code class="text-zinc-900 dark:text-zinc-100">README.md</code>, paste the generated <strong class="text-zinc-800 dark:text-zinc-200">README Markers</strong> anywhere on the page, and commit changes.</p>
+                <p>Create a file inside your repository named <code class="text-zinc-900 dark:text-zinc-100">.github/workflows/waka-stats.yml</code> and paste the copy-ready workflow.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 p-4 space-y-2.5 shadow-sm">
+          <h4 class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Open Source Attribution</h4>
+          <p class="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            This tool formats configurations for the open-source GitHub Action <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="font-semibold text-zinc-900 dark:text-zinc-250 hover:underline">waka-readme-stats</a>, designed and maintained by <a href="https://github.com/anmol098" target="_blank" rel="noopener noreferrer" class="font-semibold text-zinc-900 dark:text-zinc-250 hover:underline">anmol098</a>.
+          </p>
+          <div class="text-[10px] text-zinc-400 dark:text-zinc-500 pt-2.5 border-t border-zinc-150 dark:border-zinc-850 flex items-center justify-between flex-wrap gap-2">
+            <span>UI Tool by <a href="https://github.com/wuisabel-gif" target="_blank" rel="noopener noreferrer" class="hover:underline font-semibold text-zinc-600 dark:text-zinc-400">@wuisabel-gif</a></span>
+            <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+              ★ Star Original Action
+            </a>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="lg:col-span-6 flex flex-col gap-6">
+
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+          
+          <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5 p-0.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-250 dark:border-zinc-700 rounded-lg">
+              <button onclick="setPreviewViewMode('empty-live')" id="preview-tab-live" class="px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live Preview
+              </button>
+              <button onclick="setPreviewViewMode('example-populated')" id="preview-tab-example" class="px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Example
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-md border border-zinc-250 dark:border-zinc-750 self-end sm:self-auto">
+              <button onclick="setPreviewTheme('dark')" id="preview-theme-dark" class="px-2.5 py-0.5 text-[9px] font-semibold rounded transition">
+                GitHub Dark
+              </button>
+              <button onclick="setPreviewTheme('light')" id="preview-theme-light" class="px-2.5 py-0.5 text-[9px] font-semibold rounded transition">
+                GitHub Light
+              </button>
+            </div>
+          </div>
+
+          <div id="preview-viewport" class="p-5 md:p-6 transition-colors duration-200 flex-1 overflow-x-auto min-h-[420px]">
+            <div id="preview-canvas" class="font-mono text-[11px] max-w-lg leading-relaxed"></div>
+          </div>
+
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 text-[10px] text-zinc-400 dark:text-zinc-500 text-center flex items-center justify-center gap-2">
+            <svg class="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>Preview updates as options change.</span>
+          </div>
+
+        </div>
+
+        <div id="workflow-yaml-section" class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+          
+          <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              GitHub Actions YAML Workflow
+            </span>
+            <button onclick="copyYamlText()" id="btn-copy-yaml" class="px-2.5 py-1 rounded text-[10px] font-bold tracking-tight transition flex items-center gap-1 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-xs">
+              <span id="copy-yaml-icon">
+                <svg class="w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </span>
+              <span id="copy-yaml-text">Copy YAML</span>
+            </button>
+          </div>
+
+          <div class="generated-code-panel relative p-4 font-mono text-[11px] overflow-auto max-h-[300px] border-b border-zinc-250 dark:border-zinc-800">
+            <pre class="generated-code select-all leading-normal whitespace-pre" id="yaml-code-view"></pre>
+          </div>
+
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span>Save this file as <code class="text-zinc-900 dark:text-zinc-100 font-bold bg-zinc-150 dark:bg-zinc-800 px-1 rounded">.github/workflows/waka-stats.yml</code> inside your repository.</span>
+            <span class="text-[9px] text-zinc-400 dark:text-zinc-500 shrink-0">
+              Uses <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="underline hover:text-zinc-700 dark:hover:text-zinc-300">waka-readme-stats</a>
+            </span>
+          </div>
+
+        </div>
+
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+          
+          <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Copy README.md Markers
+            </span>
+            <button onclick="copyMarkerText()" id="btn-copy-marker" class="px-2.5 py-1 rounded text-[10px] font-bold tracking-tight transition flex items-center gap-1 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-xs">
+              <span id="copy-marker-icon">
+                <svg class="w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2" />
+                </svg>
+              </span>
+              <span id="copy-marker-text">Copy Markers</span>
+            </button>
+          </div>
+
+          <div class="generated-code-panel relative p-4 font-mono text-[11px] overflow-auto border-b border-zinc-250 dark:border-zinc-800">
+            <pre class="generated-code select-all leading-normal" id="markers-code-view"></pre>
+          </div>
+
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400">
+            <p>Place these exact markers inside your profile README. Actions will inject your statistics between these comment lines.</p>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer class="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 py-6 px-4 text-center mt-12">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-zinc-500 dark:text-zinc-500">
+        <p>© 2026 wuisabel. All rights reserved. UI tool by <a href="https://github.com/wuisabel-gif" target="_blank" rel="noopener noreferrer" class="underline hover:text-zinc-800 dark:hover:text-zinc-300 transition">wuisabel-gif</a>. Powered by <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="underline hover:text-zinc-800 dark:hover:text-zinc-300 transition">waka-readme-stats</a> by anmol098.</p>
+        <div class="flex gap-4">
+          <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-800 dark:hover:text-zinc-300 transition">Original Repository</a>
+          <a href="https://wakatime.com" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-800 dark:hover:text-zinc-300 transition">WakaTime</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  
