@@ -74,6 +74,11 @@
             </label>
 
             <label class="block">
+              <span class="text-sm font-medium text-slate-800">Workflow file name</span>
+              <input id="workflow-file" value="waka-stats.yml" class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500">
+            </label>
+
+            <label class="block">
               <span class="text-sm font-medium text-slate-800">Section title</span>
               <input id="section-title" value="WakaTime Activity Stats" class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500">
             </label>
@@ -121,6 +126,20 @@
         </div>
 
         <div id="validation-panel" class="hidden rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"></div>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Before You Run It</h2>
+          <div class="mt-4 grid gap-2">
+            <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <input id="has-waka-secret" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+              <span>WAKATIME_API_KEY secret is added</span>
+            </label>
+            <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <input id="has-gh-secret" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+              <span>GH_TOKEN secret is added</span>
+            </label>
+          </div>
+        </div>
 
         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Metrics</h2>
@@ -189,6 +208,7 @@
               <p id="summary-text" class="mt-1 text-xs text-slate-500"></p>
             </div>
             <div class="flex gap-2">
+              <button id="copy-readme" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Copy Readme</button>
               <button id="reset-config" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Reset</button>
               <button id="toggle-preview-theme" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Dark Preview</button>
               <button id="refresh-preview" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Refresh</button>
@@ -202,6 +222,18 @@
         </div>
 
         <div id="status-panel" class="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-3"></div>
+
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-700">Readiness</h2>
+              <p id="readiness-text" class="mt-1 text-sm text-emerald-900"></p>
+            </div>
+            <div class="h-2 w-36 overflow-hidden rounded-full bg-emerald-100">
+              <div id="readiness-bar" class="h-full rounded-full bg-emerald-600"></div>
+            </div>
+          </div>
+        </div>
 
         <div class="grid gap-6 xl:grid-cols-2">
           <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -220,7 +252,7 @@
             <ol class="space-y-3 p-5 text-sm leading-6 text-slate-600">
               <li><strong>1.</strong> Add the README markers to your profile repository.</li>
               <li><strong>2.</strong> Add <code>WAKATIME_API_KEY</code> and <code>GH_TOKEN</code> as repository secrets.</li>
-              <li><strong>3.</strong> Save the workflow as <code>.github/workflows/waka-stats.yml</code>.</li>
+              <li><strong>3.</strong> Save the workflow in your repositry as <code>.github/workflows/<span id="workflow-file-note">waka-stats.yml</span></code>.</li>
               <li><strong>4.</strong> Run the workflow once from the GitHub Actions tab.</li>
             </ol>
           </div>
@@ -251,6 +283,7 @@
 
     const defaults = {
       cron: '0 0 * * *',
+      workflowFile: 'waka-stats.yml',
       title: 'WakaTime Activity Stats',
       timeRange: 'last_7_days',
       metrics: ['total', 'commit', 'language', 'project']
@@ -259,6 +292,7 @@
     const presets = {
       minimal: {
         cron: '0 0 * * *',
+        workflowFile: 'waka-stats.yml',
         title: 'Coding Stats',
         timeRange: 'last_7_days',
         compactMode: true,
@@ -269,6 +303,7 @@
       },
       balanced: {
         cron: '0 0 * * *',
+        workflowFile: 'waka-stats.yml',
         title: 'WakaTime Activity Stats',
         timeRange: 'last_30_days',
         compactMode: false,
@@ -279,6 +314,7 @@
       },
       full: {
         cron: '0 */6 * * *',
+        workflowFile: 'waka-stats.yml',
         title: 'Developer Activity',
         timeRange: 'all_time',
         compactMode: false,
@@ -308,6 +344,7 @@ jobs:
 
     let darkPreview = false;
     let activePreset = 'balanced';
+    const storageKey = 'wakaforge-draft-config';
 
     function getSelectedMetrics() {
       const selected = Array.from(document.querySelectorAll('.metric-toggle'))
@@ -320,6 +357,7 @@ jobs:
     function getConfig() {
       return {
         cron: document.getElementById('cron-select').value || defaults.cron,
+        workflowFile: document.getElementById('workflow-file').value.trim() || defaults.workflowFile,
         title: document.getElementById('section-title').value.trim() || defaults.title,
         timeRange: document.getElementById('time-range').value || defaults.timeRange,
         previewStyle: document.getElementById('preview-style').value || 'standard',
@@ -327,6 +365,8 @@ jobs:
         compactMode: document.getElementById('compact-mode').checked,
         showUpdatedDate: document.getElementById('show-updated-date').checked,
         showLanguagePerRepo: document.getElementById('show-language-per-repo').checked,
+        hasWakaSecret: document.getElementById('has-waka-secret').checked,
+        hasGhSecret: document.getElementById('has-gh-secret').checked,
         metrics: getSelectedMetrics()
       };
     }
@@ -384,6 +424,11 @@ jobs:
       }
     }
 
+    function generateReadmeSnippet(config) {
+      const previewText = document.getElementById('readme-preview').innerText.trim();
+      return previewText || readmeMarkers;
+    }
+
     function renderPreview(config) {
       const markerLines = readmeMarkers.split('\n');
       const visibleMetrics = metricsForOutput(config);
@@ -427,9 +472,12 @@ jobs:
     function validateConfig(config) {
       const messages = [];
       if (config.title.length > 48) messages.push('Section title is long and may wrap awkwardly in a README.');
+      if (!config.workflowFile.endsWith('.yml') && !config.workflowFile.endsWith('.yaml')) messages.push('Workflow file name should usually end in .yml or .yaml.');
+      if (config.workflowFile.includes('/')) messages.push('Use only the workflow file name, not the full .github/workflows path.');
       if (!config.metrics.length) messages.push('At least one metric should be selected. The YAML falls back to total code time.');
       if (config.compactMode && config.previewStyle !== 'compact') messages.push('Compact mode is enabled, so the preview uses compact output.');
       if (config.showLanguagePerRepo && !metricsForOutput(config).includes('language')) messages.push('Language per repo works best when language stats are enabled.');
+      if (!config.hasWakaSecret || !config.hasGhSecret) messages.push('Add both repository secrets before running the workflow.');
       return messages;
     }
 
@@ -451,9 +499,10 @@ jobs:
         ['Schedule', config.cron],
         ['Output', config.compactMode ? 'Compact YAML enabled' : 'Standard YAML'],
         ['Metrics', config.metrics.length ? `${config.metrics.length} selected` : 'fallback enabled'],
-        ['Preview', darkPreview ? 'Dark GitHub style' : 'Light GitHub style']
+        ['Preview', darkPreview ? 'Dark GitHub style' : 'Light GitHub style'],
+        ['Workflow file', config.workflowFile]
       ];
-      document.getElementById('status-panel').className = 'grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-4';
+      document.getElementById('status-panel').className = 'grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-5';
       document.getElementById('status-panel').innerHTML = rows.map(([label, value]) => `
         <div class="rounded-md border border-slate-200 p-3">
           <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">${label}</div>
@@ -466,7 +515,17 @@ jobs:
       const markerText = document.getElementById('markers-output').innerText;
       const yamlText = document.getElementById('yaml-output').innerText;
       document.getElementById('markers-meta').innerText = `${markerText.split('\n').length} lines`;
-      document.getElementById('yaml-meta').innerText = `${yamlText.split('\n').length} lines · ${yamlText.length} characters`;
+      document.getElementById('yaml-meta').innerText = `${yamlText.split('\n').length} lines · ${yamlText.length} charaters`;
+    }
+
+    function renderReadiness(config) {
+      const messages = validateConfig(config);
+      const metricScore = Math.min(metricsForOutput(config).length * 5, 35);
+      const secretScore = config.hasWakaSecret && config.hasGhSecret ? 20 : 8;
+      const warningPenalty = Math.min(messages.length * 7, 21);
+      const score = Math.max(45, Math.min(90, 35 + metricScore + secretScore - warningPenalty));
+      document.getElementById('readiness-text').innerText = `${score}% ready · ${messages.length ? 'review warnings before release' : 'ready for final QA'}`;
+      document.getElementById('readiness-bar').style.width = `${score}%`;
     }
 
     function renderPresetState() {
@@ -496,6 +555,7 @@ jobs:
       const config = getConfig();
       document.getElementById('markers-output').innerText = readmeMarkers;
       document.getElementById('yaml-output').innerText = generateWorkflowYaml(config);
+      document.getElementById('workflow-file-note').innerText = config.workflowFile;
       renderPreview(config);
       renderSummary(config);
       renderStatus(config);
@@ -503,6 +563,8 @@ jobs:
       renderPreviewTheme();
       renderOutputMeta();
       renderPresetState();
+      renderReadiness(config);
+      saveDraft(config);
     }
 
     async function copyText(id, button) {
@@ -533,6 +595,7 @@ jobs:
       const preset = presets[name] || presets.balanced;
       activePreset = presets[name] ? name : 'balanced';
       document.getElementById('cron-select').value = preset.cron;
+      document.getElementById('workflow-file').value = preset.workflowFile;
       document.getElementById('section-title').value = preset.title;
       document.getElementById('time-range').value = preset.timeRange;
       document.getElementById('preview-style').value = preset.previewStyle;
@@ -540,6 +603,8 @@ jobs:
       document.getElementById('show-title').checked = true;
       document.getElementById('show-updated-date').checked = preset.showUpdatedDate;
       document.getElementById('show-language-per-repo').checked = preset.showLanguagePerRepo;
+      document.getElementById('has-waka-secret').checked = false;
+      document.getElementById('has-gh-secret').checked = false;
       document.querySelectorAll('.metric-toggle').forEach((input) => {
         input.checked = preset.metrics.includes(input.dataset.metric);
       });
@@ -557,16 +622,49 @@ jobs:
 
     function downloadYaml() {
       const yaml = document.getElementById('yaml-output').innerText.trim() || fallbackWorkflowYaml;
+      const config = getConfig();
       const blob = new Blob([yaml], { type: 'text/yaml' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'waka-stats.yml';
+      link.download = config.workflowFile || defaults.workflowFile;
       link.click();
       URL.revokeObjectURL(url);
     }
 
+    function saveDraft(config) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({ ...config, darkPreview, activePreset }));
+      } catch (error) {
+      }
+    }
+
+    function loadDraft() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        if (!saved) return;
+        document.getElementById('cron-select').value = saved.cron || defaults.cron;
+        document.getElementById('workflow-file').value = saved.workflowFile || defaults.workflowFile;
+        document.getElementById('section-title').value = saved.title || defaults.title;
+        document.getElementById('time-range').value = saved.timeRange || defaults.timeRange;
+        document.getElementById('preview-style').value = saved.previewStyle || 'standard';
+        document.getElementById('show-title').checked = saved.showTitle !== false;
+        document.getElementById('compact-mode').checked = Boolean(saved.compactMode);
+        document.getElementById('show-updated-date').checked = saved.showUpdatedDate !== false;
+        document.getElementById('show-language-per-repo').checked = Boolean(saved.showLanguagePerRepo);
+        document.getElementById('has-waka-secret').checked = Boolean(saved.hasWakaSecret);
+        document.getElementById('has-gh-secret').checked = Boolean(saved.hasGhSecret);
+        document.querySelectorAll('.metric-toggle').forEach((input) => {
+          input.checked = Array.isArray(saved.metrics) && saved.metrics.includes(input.dataset.metric);
+        });
+        darkPreview = Boolean(saved.darkPreview);
+        activePreset = saved.activePreset || '';
+      } catch (error) {
+      }
+    }
+
     document.getElementById('cron-select').addEventListener('change', markCustomConfig);
+    document.getElementById('workflow-file').addEventListener('input', markCustomConfig);
     document.getElementById('section-title').addEventListener('input', markCustomConfig);
     document.getElementById('time-range').addEventListener('change', markCustomConfig);
     document.getElementById('preview-style').addEventListener('change', markCustomConfig);
@@ -574,6 +672,8 @@ jobs:
     document.getElementById('compact-mode').addEventListener('change', markCustomConfig);
     document.getElementById('show-updated-date').addEventListener('change', markCustomConfig);
     document.getElementById('show-language-per-repo').addEventListener('change', markCustomConfig);
+    document.getElementById('has-waka-secret').addEventListener('change', markCustomConfig);
+    document.getElementById('has-gh-secret').addEventListener('change', markCustomConfig);
     document.querySelectorAll('.metric-toggle').forEach((input) => input.addEventListener('change', markCustomConfig));
     document.querySelectorAll('.preset-button').forEach((button) => {
       button.addEventListener('click', () => applyPreset(button.dataset.preset));
@@ -584,9 +684,14 @@ jobs:
     });
     document.getElementById('refresh-preview').addEventListener('click', render);
     document.getElementById('reset-config').addEventListener('click', resetConfig);
+    document.getElementById('copy-readme').addEventListener('click', (event) => {
+      document.getElementById('readme-preview').innerText = generateReadmeSnippet(getConfig());
+      copyText('readme-preview', event.currentTarget);
+    });
     document.getElementById('copy-markers').addEventListener('click', (event) => copyText('markers-output', event.currentTarget));
     document.getElementById('copy-yaml').addEventListener('click', (event) => copyText('yaml-output', event.currentTarget));
     document.getElementById('download-yaml').addEventListener('click', downloadYaml);
+    loadDraft();
     render();
   </script>
 </body>
