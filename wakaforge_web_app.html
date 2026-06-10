@@ -99,6 +99,17 @@
               </label>
             </div>
 
+            <div class="grid gap-2 sm:grid-cols-2">
+              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
+                <input id="show-updated-date" type="checkbox" checked class="h-4 w-4 rounded border-slate-300">
+                <span>Updated date</span>
+              </label>
+              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
+                <input id="show-language-per-repo" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+                <span>Language per repo</span>
+              </label>
+            </div>
+
             <label class="block">
               <span class="text-sm font-medium text-slate-800">Preview style</span>
               <select id="preview-style" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
@@ -142,6 +153,26 @@
               <span>Profile views</span>
               <input data-metric="profile_views" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
             </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Lines of code</span>
+              <input data-metric="lines_of_code" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Pull requests</span>
+              <input data-metric="pull_requests" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Issues</span>
+              <input data-metric="issues" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Days of week</span>
+              <input data-metric="days_of_week" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
+            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
+              <span>Time of day</span>
+              <input data-metric="time_of_day" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
+            </label>
           </div>
         </div>
 
@@ -158,6 +189,7 @@
               <p id="summary-text" class="mt-1 text-xs text-slate-500"></p>
             </div>
             <div class="flex gap-2">
+              <button id="reset-config" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Reset</button>
               <button id="toggle-preview-theme" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Dark Preview</button>
               <button id="refresh-preview" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Refresh</button>
             </div>
@@ -174,11 +206,12 @@
         <div class="grid gap-6 xl:grid-cols-2">
           <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">README Markers</h2>
-              <button id="copy-markers" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
-            </div>
-            <pre id="markers-output" class="min-h-28 overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">README Markers</h2>
+            <button id="copy-markers" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
           </div>
+          <pre id="markers-output" class="min-h-28 overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+          <div id="markers-meta" class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500"></div>
+        </div>
 
           <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
@@ -188,6 +221,7 @@
               <li><strong>1.</strong> Add the README markers to your profile repository.</li>
               <li><strong>2.</strong> Add <code>WAKATIME_API_KEY</code> and <code>GH_TOKEN</code> as repository secrets.</li>
               <li><strong>3.</strong> Save the workflow as <code>.github/workflows/waka-stats.yml</code>.</li>
+              <li><strong>4.</strong> Run the workflow once from the GitHub Actions tab.</li>
             </ol>
           </div>
         </div>
@@ -201,6 +235,7 @@
             </div>
           </div>
           <pre id="yaml-output" class="max-h-[460px] overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
+          <div id="yaml-meta" class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500"></div>
         </div>
 
         <p class="text-xs leading-5 text-slate-500">
@@ -228,6 +263,8 @@
         timeRange: 'last_7_days',
         compactMode: true,
         previewStyle: 'compact',
+        showUpdatedDate: true,
+        showLanguagePerRepo: false,
         metrics: ['total', 'language']
       },
       balanced: {
@@ -236,6 +273,8 @@
         timeRange: 'last_30_days',
         compactMode: false,
         previewStyle: 'standard',
+        showUpdatedDate: true,
+        showLanguagePerRepo: false,
         metrics: ['total', 'commit', 'language', 'project']
       },
       full: {
@@ -244,7 +283,9 @@
         timeRange: 'all_time',
         compactMode: false,
         previewStyle: 'standard',
-        metrics: ['total', 'commit', 'language', 'project', 'editor', 'operating_system', 'profile_views']
+        showUpdatedDate: true,
+        showLanguagePerRepo: true,
+        metrics: ['total', 'commit', 'language', 'project', 'editor', 'operating_system', 'profile_views', 'lines_of_code', 'pull_requests', 'issues', 'days_of_week', 'time_of_day']
       }
     };
 
@@ -266,6 +307,7 @@ jobs:
           SHOW_TOTAL_CODE_TIME: "True"`;
 
     let darkPreview = false;
+    let activePreset = 'balanced';
 
     function getSelectedMetrics() {
       const selected = Array.from(document.querySelectorAll('.metric-toggle'))
@@ -283,6 +325,8 @@ jobs:
         previewStyle: document.getElementById('preview-style').value || 'standard',
         showTitle: document.getElementById('show-title').checked,
         compactMode: document.getElementById('compact-mode').checked,
+        showUpdatedDate: document.getElementById('show-updated-date').checked,
+        showLanguagePerRepo: document.getElementById('show-language-per-repo').checked,
         metrics: getSelectedMetrics()
       };
     }
@@ -319,13 +363,21 @@ jobs:
           SECTION_NAME: "${escapeYaml(safeTitle)}"
           TIME_RANGE: "${config.timeRange}"
           SHOW_SHORT_INFO: "${config.compactMode ? 'True' : 'False'}"
+          SHOW_UPDATED_DATE: "${config.showUpdatedDate ? 'True' : 'False'}"
           SHOW_TOTAL_CODE_TIME: "${safeMetrics.includes('total') ? 'True' : 'False'}"
           SHOW_COMMIT: "${safeMetrics.includes('commit') ? 'True' : 'False'}"
           SHOW_LANGUAGE: "${safeMetrics.includes('language') ? 'True' : 'False'}"
+          SHOW_LANGUAGE_PER_REPO: "${config.showLanguagePerRepo ? 'True' : 'False'}"
           SHOW_PROJECTS: "${safeMetrics.includes('project') ? 'True' : 'False'}"
           SHOW_EDITORS: "${safeMetrics.includes('editor') ? 'True' : 'False'}"
           SHOW_OS: "${safeMetrics.includes('operating_system') ? 'True' : 'False'}"
-          SHOW_PROFILE_VIEWS: "${safeMetrics.includes('profile_views') ? 'True' : 'False'}"`;
+          SHOW_PROFILE_VIEWS: "${safeMetrics.includes('profile_views') ? 'True' : 'False'}"
+          SHOW_LINES_OF_CODE: "${safeMetrics.includes('lines_of_code') ? 'True' : 'False'}"
+          SHOW_LOC_CHART: "${safeMetrics.includes('lines_of_code') ? 'True' : 'False'}"
+          SHOW_PULL_REQUESTS: "${safeMetrics.includes('pull_requests') ? 'True' : 'False'}"
+          SHOW_ISSUES: "${safeMetrics.includes('issues') ? 'True' : 'False'}"
+          SHOW_DAYS_OF_WEEK: "${safeMetrics.includes('days_of_week') ? 'True' : 'False'}"
+          SHOW_TIME_OF_DAY: "${safeMetrics.includes('time_of_day') ? 'True' : 'False'}"`;
         return yaml.trim() || fallbackWorkflowYaml;
       } catch (error) {
         return fallbackWorkflowYaml;
@@ -338,13 +390,20 @@ jobs:
       const standardLines = [
         markerLines[0],
         config.showTitle ? config.title : '',
+        config.showUpdatedDate ? 'Last updated: today' : '',
         visibleMetrics.includes('total') ? `Total code time: 49 hrs 18 mins (${config.timeRange})` : '',
         visibleMetrics.includes('commit') ? 'Commits: 143 · Current streak: 12 days' : '',
         visibleMetrics.includes('language') ? 'Languages: TypeScript 45%, JavaScript 15%, Python 5%' : '',
+        config.showLanguagePerRepo && visibleMetrics.includes('language') ? 'Language per repo: frontend TypeScript · docs Markdown' : '',
         visibleMetrics.includes('project') ? 'Projects: WakaForge, Portfolio, Docs' : '',
         visibleMetrics.includes('editor') ? 'Editors: VS Code, Neovim' : '',
         visibleMetrics.includes('operating_system') ? 'OS: macOS 75%, Linux 25%' : '',
         visibleMetrics.includes('profile_views') ? 'Profile views: 2,410' : '',
+        visibleMetrics.includes('lines_of_code') ? 'Lines changed: +2.4k / -1.1k' : '',
+        visibleMetrics.includes('pull_requests') ? 'Pull requests: 32 merged' : '',
+        visibleMetrics.includes('issues') ? 'Issues: 18 closed' : '',
+        visibleMetrics.includes('days_of_week') ? 'Most active day: Wednesday' : '',
+        visibleMetrics.includes('time_of_day') ? 'Most active time: Afternoon' : '',
         markerLines[1]
       ].filter(Boolean);
 
@@ -355,7 +414,8 @@ jobs:
           visibleMetrics.includes('total') ? '49h code time' : '',
           visibleMetrics.includes('commit') ? '143 commits' : '',
           visibleMetrics.includes('language') ? 'TypeScript 45%' : '',
-          visibleMetrics.includes('project') ? '3 projects' : ''
+          visibleMetrics.includes('project') ? '3 projects' : '',
+          visibleMetrics.includes('profile_views') ? '2.4k views' : ''
         ].filter(Boolean).join(' · '),
         markerLines[1]
       ].filter(Boolean);
@@ -369,6 +429,7 @@ jobs:
       if (config.title.length > 48) messages.push('Section title is long and may wrap awkwardly in a README.');
       if (!config.metrics.length) messages.push('At least one metric should be selected. The YAML falls back to total code time.');
       if (config.compactMode && config.previewStyle !== 'compact') messages.push('Compact mode is enabled, so the preview uses compact output.');
+      if (config.showLanguagePerRepo && !metricsForOutput(config).includes('language')) messages.push('Language per repo works best when language stats are enabled.');
       return messages;
     }
 
@@ -389,14 +450,32 @@ jobs:
       const rows = [
         ['Schedule', config.cron],
         ['Output', config.compactMode ? 'Compact YAML enabled' : 'Standard YAML'],
-        ['Metrics', config.metrics.length ? `${config.metrics.length} selected` : 'fallback enabled']
+        ['Metrics', config.metrics.length ? `${config.metrics.length} selected` : 'fallback enabled'],
+        ['Preview', darkPreview ? 'Dark GitHub style' : 'Light GitHub style']
       ];
+      document.getElementById('status-panel').className = 'grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-4';
       document.getElementById('status-panel').innerHTML = rows.map(([label, value]) => `
         <div class="rounded-md border border-slate-200 p-3">
           <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">${label}</div>
           <div class="mt-1 font-medium text-slate-800">${value}</div>
         </div>
       `).join('');
+    }
+
+    function renderOutputMeta() {
+      const markerText = document.getElementById('markers-output').innerText;
+      const yamlText = document.getElementById('yaml-output').innerText;
+      document.getElementById('markers-meta').innerText = `${markerText.split('\n').length} lines`;
+      document.getElementById('yaml-meta').innerText = `${yamlText.split('\n').length} lines · ${yamlText.length} characters`;
+    }
+
+    function renderPresetState() {
+      document.querySelectorAll('.preset-button').forEach((button) => {
+        const isActive = button.dataset.preset === activePreset;
+        button.className = isActive
+          ? 'preset-button rounded-md border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-semibold text-white'
+          : 'preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50';
+      });
     }
 
     function renderPreviewTheme() {
@@ -422,13 +501,24 @@ jobs:
       renderStatus(config);
       renderValidation(config);
       renderPreviewTheme();
+      renderOutputMeta();
+      renderPresetState();
     }
 
     async function copyText(id, button) {
       const value = document.getElementById(id).innerText.trim();
       const label = button.innerText;
       try {
-        await navigator.clipboard.writeText(value);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(value);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = value;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+        }
         button.innerText = 'Copied';
       } catch (error) {
         button.innerText = 'Copy failed';
@@ -441,15 +531,27 @@ jobs:
 
     function applyPreset(name) {
       const preset = presets[name] || presets.balanced;
+      activePreset = presets[name] ? name : 'balanced';
       document.getElementById('cron-select').value = preset.cron;
       document.getElementById('section-title').value = preset.title;
       document.getElementById('time-range').value = preset.timeRange;
       document.getElementById('preview-style').value = preset.previewStyle;
       document.getElementById('compact-mode').checked = preset.compactMode;
       document.getElementById('show-title').checked = true;
+      document.getElementById('show-updated-date').checked = preset.showUpdatedDate;
+      document.getElementById('show-language-per-repo').checked = preset.showLanguagePerRepo;
       document.querySelectorAll('.metric-toggle').forEach((input) => {
         input.checked = preset.metrics.includes(input.dataset.metric);
       });
+      render();
+    }
+
+    function resetConfig() {
+      applyPreset('balanced');
+    }
+
+    function markCustomConfig() {
+      activePreset = '';
       render();
     }
 
@@ -464,13 +566,15 @@ jobs:
       URL.revokeObjectURL(url);
     }
 
-    document.getElementById('cron-select').addEventListener('change', render);
-    document.getElementById('section-title').addEventListener('input', render);
-    document.getElementById('time-range').addEventListener('change', render);
-    document.getElementById('preview-style').addEventListener('change', render);
-    document.getElementById('show-title').addEventListener('change', render);
-    document.getElementById('compact-mode').addEventListener('change', render);
-    document.querySelectorAll('.metric-toggle').forEach((input) => input.addEventListener('change', render));
+    document.getElementById('cron-select').addEventListener('change', markCustomConfig);
+    document.getElementById('section-title').addEventListener('input', markCustomConfig);
+    document.getElementById('time-range').addEventListener('change', markCustomConfig);
+    document.getElementById('preview-style').addEventListener('change', markCustomConfig);
+    document.getElementById('show-title').addEventListener('change', markCustomConfig);
+    document.getElementById('compact-mode').addEventListener('change', markCustomConfig);
+    document.getElementById('show-updated-date').addEventListener('change', markCustomConfig);
+    document.getElementById('show-language-per-repo').addEventListener('change', markCustomConfig);
+    document.querySelectorAll('.metric-toggle').forEach((input) => input.addEventListener('change', markCustomConfig));
     document.querySelectorAll('.preset-button').forEach((button) => {
       button.addEventListener('click', () => applyPreset(button.dataset.preset));
     });
@@ -479,6 +583,7 @@ jobs:
       renderPreviewTheme();
     });
     document.getElementById('refresh-preview').addEventListener('click', render);
+    document.getElementById('reset-config').addEventListener('click', resetConfig);
     document.getElementById('copy-markers').addEventListener('click', (event) => copyText('markers-output', event.currentTarget));
     document.getElementById('copy-yaml').addEventListener('click', (event) => copyText('yaml-output', event.currentTarget));
     document.getElementById('download-yaml').addEventListener('click', downloadYaml);
