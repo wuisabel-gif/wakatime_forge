@@ -6,6 +6,10 @@ WakaForge is a static web app for generating a WakaTime README stats workflow. I
 
 See the live deployment here: [https://wuisabel-gif.github.io/wakatime_forge/](https://wuisabel-gif.github.io/wakatime_forge/)
 
+## Preview
+
+![WakaForge live preview interface](assets/wakaforge-preview.png)
+
 ## What It Does
 
 - Generates the README marker block:
