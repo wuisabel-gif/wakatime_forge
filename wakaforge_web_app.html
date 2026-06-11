@@ -3,329 +3,474 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WakaTime YAML Generator</title>
+  <title>wakatime YAML online generator</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderWidth: {
+            '850': '1px',
+          },
+          colors: {
+            zinc: {
+              850: '#202024'
+            }
           }
         }
       }
-    };
+    }
   </script>
+  
   <style>
-    body {
-      font-family: Inter, sans-serif;
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #d4d4d8;
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .switch-thumb {
+      transition: transform 0.2s;
     }
 
-    pre,
-    code {
-      font-family: "JetBrains Mono", monospace;
+    .generated-code-panel {
+      background: #f8fafc;
+    }
+
+    .generated-code {
+      color: #111827;
+      text-shadow: none;
+    }
+
+    .dark .generated-code-panel {
+      background: #0f172a;
+    }
+
+    .dark .generated-code {
+      color: #e5e7eb;
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-950">
-  <div class="min-h-screen">
-    <header class="border-b border-slate-200 bg-white">
-      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">WakaForge</p>
-          <h1 class="mt-1 text-2xl font-bold tracking-tight">WakaTime YAML Generator</h1>
-          <p class="mt-1 text-sm text-slate-500">Build a README stats workflow for GitHub profile repositories.</p>
+<body class="transition-colors duration-200">
+
+      MAIN APP CONTAINER & WRAPPER
+     ========================================== 
+  <div id="app-root" class="min-h-screen flex flex-col antialiased">
+    
+    <header class="border-b border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-2.5">
+          <div class="border border-zinc-200 dark:border-zinc-800 p-2 rounded-md bg-zinc-100 dark:bg-zinc-900 shadow-xs">
+            <svg class="w-5 h-5 text-zinc-900 dark:text-zinc-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-md font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              wakatime YAML online generator
+            </h1>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Configure WakaTime README stats workflows</p>
+          </div>
         </div>
-        <a class="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer">
-          Original Action
-        </a>
+
+        <div class="flex items-center gap-3">
+          <div class="hidden md:flex items-center gap-1 border border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-zinc-900 p-0.5 rounded-lg text-[11px]">
+            <span class="px-2 text-zinc-400 dark:text-zinc-500 font-medium">Presets:</span>
+            <button onclick="applyPreset('minimalist')" class="px-2.5 py-1 font-semibold rounded-md hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+              🍃 Minimal
+            </button>
+            <button onclick="applyPreset('git-focused')" class="px-2.5 py-1 font-semibold rounded-md hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+              💻 Git Flow
+            </button>
+            <button onclick="applyPreset('full-spectrum')" class="px-2.5 py-1 font-semibold rounded-md hover:bg-white dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+              🔥 Max Stats
+            </button>
+          </div>
+
+          <button onclick="toggleThemeMode()" class="p-2 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition">
+            <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-11.314l.707.707m12.728 12.728l.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="theme-icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+        </div>
+
       </div>
     </header>
 
-    <main class="mx-auto grid max-w-6xl gap-6 px-5 py-6 lg:grid-cols-[400px_1fr]">
-      <section class="space-y-6">
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <div>
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Configuration</h2>
-            <p class="mt-2 text-sm leading-6 text-slate-600">
-              Choose the schedule, display name, and stats that should be passed into the workflow.
-            </p>
-          </div>
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <section class="lg:col-span-6 flex flex-col gap-6">
+        
+        <div class="bg-zinc-100 dark:bg-zinc-900 p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 flex gap-1">
+          <button onclick="setActiveTab('identity')" id="tab-btn-identity" class="flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all">
+            Identity & Style
+          </button>
+          <button onclick="setActiveTab('metrics')" id="tab-btn-metrics" class="flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all">
+            Data Metrics
+          </button>
+          <button onclick="setActiveTab('frequency')" id="tab-btn-frequency" class="flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all">
+            Automation
+          </button>
+        </div>
 
-          <div class="mt-5 grid gap-2 sm:grid-cols-3">
-            <button data-preset="minimal" class="preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Minimal</button>
-            <button data-preset="balanced" class="preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Balanced</button>
-            <button data-preset="full" class="preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Full</button>
-          </div>
-
-          <div class="mt-6 space-y-5">
-            <label class="block">
-              <span class="text-sm font-medium text-slate-800">Workflow schedule</span>
-              <select id="cron-select" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
-                <option value="0 0 * * *">Daily at midnight</option>
-                <option value="0 */6 * * *">Every 6 hours</option>
-                <option value="0 0 * * 0">Weekly on Sunday</option>
-                <option value="0 0 1 * *">Monthly on the 1st</option>
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="text-sm font-medium text-slate-800">Workflow file name</span>
-              <input id="workflow-file" value="waka-stats.yml" class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500">
-            </label>
-
-            <label class="block">
-              <span class="text-sm font-medium text-slate-800">Section title</span>
-              <input id="section-title" value="WakaTime Activity Stats" class="mt-2 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500">
-            </label>
-
-            <label class="block">
-              <span class="text-sm font-medium text-slate-800">Time range</span>
-              <select id="time-range" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
-                <option value="last_7_days">Last 7 days</option>
-                <option value="last_30_days">Last 30 days</option>
-                <option value="last_year">Last year</option>
-                <option value="all_time">All time</option>
-              </select>
-            </label>
-
-            <div class="grid gap-2 sm:grid-cols-2">
-              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input id="show-title" type="checkbox" checked class="h-4 w-4 rounded border-slate-300">
-                <span>Show title</span>
-              </label>
-              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input id="compact-mode" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span>Compact mode</span>
-              </label>
+        <div class="bg-white dark:bg-zinc-950 p-5 md:p-6 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs flex flex-col justify-between min-h-[460px]">
+          
+          <div id="tab-panel-identity" class="space-y-6 hidden">
+            <div>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Dashboard Identity</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Establish standard visual constraints, custom header parameters, and titles.</p>
             </div>
 
-            <div class="grid gap-2 sm:grid-cols-2">
-              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input id="show-updated-date" type="checkbox" checked class="h-4 w-4 rounded border-slate-300">
-                <span>Updated date</span>
-              </label>
-              <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-                <input id="show-language-per-repo" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-                <span>Language per repo</span>
-              </label>
+            <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
+              <div class="space-y-0.5">
+                <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-200">Show Section Title</label>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Toggle whether to render the block title in the markdown.</p>
+              </div>
+              <button onclick="toggleConfig('showTitle')" id="switch-showTitle" class="w-9 h-5 rounded-full transition-colors relative flex items-center bg-zinc-250 dark:bg-zinc-800">
+                <span class="switch-thumb block w-3.5 h-3.5 rounded-full bg-white shadow-xs translate-x-1"></span>
+              </button>
             </div>
 
-            <label class="block">
-              <span class="text-sm font-medium text-slate-800">Preview style</span>
-              <select id="preview-style" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500">
-                <option value="standard">Standard README block</option>
-                <option value="compact">Compact README block</option>
-              </select>
-            </label>
+            <div id="title-controls-panel" class="space-y-4 p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/80 animate-fadeIn hidden">
+              <div class="space-y-2">
+                <span class="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Title Type</span>
+                <div class="flex gap-2">
+                  <button onclick="handleTitleTypeChange('default')" id="btn-title-default" class="flex-1 py-1.5 text-xs font-semibold rounded-md border text-center transition">
+                    Default stats
+                  </button>
+                  <button onclick="handleTitleTypeChange('custom')" id="btn-title-custom" class="flex-1 py-1.5 text-xs font-semibold rounded-md border text-center transition">
+                    Custom Title
+                  </button>
+                </div>
+              </div>
+
+              <div id="custom-title-input-wrapper" class="space-y-1 hidden animate-fadeIn">
+                <label class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">Custom Section Name</label>
+                <input type="text" id="custom-title-input" oninput="handleCustomTitleInput(this.value)" class="w-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 rounded-md px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400" />
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">Header Icon Style</label>
+                <div class="grid grid-cols-3 gap-1.5" id="emoji-options-grid"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 pt-1">
+              <div class="space-y-0.5">
+                <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-200">Compact Mode Layout</label>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Compress formatting parameters to fit small markdown grids.</p>
+              </div>
+              <button onclick="toggleConfig('compactMode')" id="switch-compactMode" class="w-9 h-5 rounded-full transition-colors relative flex items-center bg-zinc-250 dark:bg-zinc-800">
+                <span class="switch-thumb block w-3.5 h-3.5 rounded-full bg-white shadow-xs translate-x-1"></span>
+              </button>
+            </div>
+
+            <div class="space-y-2 pt-2">
+              <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-200 block">Statistical Time Window</label>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="timeframe-options-grid"></div>
+            </div>
+          </div>
+
+          <div id="tab-panel-metrics" class="space-y-6 hidden">
+            <div>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Visual Charts & Metrics Filter</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Select what is rendered. Dependencies will auto-resolve.</p>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Visual Charts</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="diagrams-grid"></div>
+            </div>
+
+            <div class="space-y-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Additional Data Metrics</label>
+              <div class="max-h-[160px] overflow-y-auto pr-1 space-y-1.5 custom-scrollbar" id="metrics-scroller"></div>
+            </div>
+          </div>
+
+          <div id="tab-panel-frequency" class="space-y-6 hidden">
+            <div>
+              <h3 class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Frequency & Automation</h3>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400">Configure how often GitHub Actions triggers a parse rebuild to update your README markdown.</p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="frequency-grid"></div>
+
+              <div class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 flex items-start gap-3">
+                <div class="p-1 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-300 shrink-0">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-0.5">WakaForge Cron Explanation</h4>
+                  <p class="text-[10px] text-zinc-400 dark:text-zinc-500 leading-relaxed">
+                    GitHub Actions operates scheduling using UTC. Your selected interval is converted to a simple cron syntax automatically. You will never have to manually write standard cron strings like <code class="text-zinc-900 dark:text-zinc-200 font-mono bg-zinc-200 dark:bg-zinc-850 px-1 rounded">0 0 * * *</code> inside your configurations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 mt-6 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-[10px] tracking-wider text-zinc-400 uppercase font-bold">Synced</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button onclick="handleBackStep()" id="btn-back-step" class="px-3 py-1.5 rounded-md text-xs bg-transparent border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 transition disabled:opacity-50 disabled:pointer-events-none">
+                Back
+              </button>
+              <button onclick="handleContinueStep()" id="btn-continue-step" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-sm transition flex items-center gap-1.5">
+                Continue
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 overflow-hidden shadow-sm">
+          <div class="p-4 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Step-by-Step Integration Guide
+            </span>
+          </div>
+
+          <div class="divide-y divide-zinc-100 dark:divide-zinc-800 text-xs">
+            <div class="p-3.5">
+              <button onclick="setExpandedStep(1)" class="w-full flex items-center justify-between text-left">
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold flex items-center justify-center border border-zinc-200 dark:border-zinc-800">1</span>
+                  Expose Your WakaTime Token
+                </span>
+                <span id="step-arrow-1" class="text-zinc-450 text-[10px]">▼</span>
+              </button>
+              <div id="step-desc-1" class="mt-2 pl-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-1.5 animate-fadeIn hidden">
+                <p>Go to your <a href="https://wakatime.com/settings/account" target="_blank" rel="noopener noreferrer" class="text-zinc-900 dark:text-zinc-100 underline underline-offset-2">WakaTime Account Settings</a> page.</p>
+                <p>Ensure that <strong class="text-zinc-800 dark:text-zinc-200">Display Coding Activity</strong> and <strong className="text-zinc-800 dark:text-zinc-200">Display Languages</strong> are visible publicly in settings, and copy your secret API key.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5">
+              <button onclick="setExpandedStep(2)" class="w-full flex items-center justify-between text-left">
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold flex items-center justify-center border border-zinc-200 dark:border-zinc-800">2</span>
+                  Configure GitHub Actions Secrets
+                </span>
+                <span id="step-arrow-2" class="text-zinc-450 text-[10px]">▼</span>
+              </button>
+              <div id="step-desc-2" class="mt-2 pl-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2 animate-fadeIn hidden">
+                <p>Navigate to your public GitHub profile repository settings.</p>
+                <div class="space-y-1.5 bg-zinc-50 dark:bg-zinc-900 p-2.5 rounded border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono text-zinc-700 dark:text-zinc-350">
+                  <div>🔑 <strong class="text-zinc-950 dark:text-zinc-50">WAKATIME_API_KEY</strong>: Paste your key from Step 1.</div>
+                  <div>🔑 <strong class="text-zinc-950 dark:text-zinc-50">GH_TOKEN</strong>: Create a GitHub PAT with repo scope & paste here.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3.5">
+              <button onclick="setExpandedStep(3)" class="w-full flex items-center justify-between text-left">
+                <span class="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+                  <span class="w-4 h-4 rounded bg-zinc-100 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 font-bold flex items-center justify-center border border-zinc-200 dark:border-zinc-800">3</span>
+                  Paste README Markers & Deploy Workflow
+                </span>
+                <span id="step-arrow-3" class="text-zinc-450 text-[10px]">▼</span>
+              </button>
+              <div id="step-desc-3" class="mt-2 pl-6 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-2 animate-fadeIn hidden">
+                <p>Open your repository's <code class="text-zinc-900 dark:text-zinc-100">README.md</code>, paste the generated <strong class="text-zinc-800 dark:text-zinc-200">README Markers</strong> anywhere on the page, and commit changes.</p>
+                <p>Create a file inside your repository named <code class="text-zinc-900 dark:text-zinc-100">.github/workflows/waka-stats.yml</code> and paste the copy-ready workflow.</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="validation-panel" class="hidden rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"></div>
-
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Before You Run It</h2>
-          <div class="mt-4 grid gap-2">
-            <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <input id="has-waka-secret" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-              <span>WAKATIME_API_KEY secret is added</span>
-            </label>
-            <label class="flex items-center gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <input id="has-gh-secret" type="checkbox" class="h-4 w-4 rounded border-slate-300">
-              <span>GH_TOKEN secret is added</span>
-            </label>
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-850 p-4 space-y-2.5 shadow-sm">
+          <h4 class="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Open Source Attribution</h4>
+          <p class="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            This tool formats configurations for the open-source GitHub Action <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="font-semibold text-zinc-900 dark:text-zinc-250 hover:underline">waka-readme-stats</a>, designed and maintained by <a href="https://github.com/anmol098" target="_blank" rel="noopener noreferrer" class="font-semibold text-zinc-900 dark:text-zinc-250 hover:underline">anmol098</a>.
+          </p>
+          <div class="text-[10px] text-zinc-400 dark:text-zinc-500 pt-2.5 border-t border-zinc-150 dark:border-zinc-850 flex items-center justify-between flex-wrap gap-2">
+            <span>UI Tool by <a href="https://github.com/wuisabel-gif" target="_blank" rel="noopener noreferrer" class="hover:underline font-semibold text-zinc-600 dark:text-zinc-400">@wuisabel-gif</a></span>
+            <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="hover:underline font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+              ★ Star Original Action
+            </a>
           </div>
         </div>
 
-        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Metrics</h2>
-          <div class="mt-4 grid gap-2">
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Total code time</span>
-              <input data-metric="total" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Commit stats</span>
-              <input data-metric="commit" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Language stats</span>
-              <input data-metric="language" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Project stats</span>
-              <input data-metric="project" type="checkbox" checked class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Editor stats</span>
-              <input data-metric="editor" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Operating systems</span>
-              <input data-metric="operating_system" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Profile views</span>
-              <input data-metric="profile_views" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Lines of code</span>
-              <input data-metric="lines_of_code" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Pull requests</span>
-              <input data-metric="pull_requests" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Issues</span>
-              <input data-metric="issues" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Days of week</span>
-              <input data-metric="days_of_week" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-            <label class="flex items-center justify-between gap-3 rounded-md border border-slate-200 p-3 text-sm">
-              <span>Time of day</span>
-              <input data-metric="time_of_day" type="checkbox" class="metric-toggle h-4 w-4 rounded border-slate-300">
-            </label>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 shadow-sm">
-          <strong class="font-semibold text-slate-800">Progress note:</strong> presets, validation, and output safeguards are in place. The next pass should polish responsive layout and expand metric coverage.
-        </div>
       </section>
 
-      <section class="space-y-6">
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <div>
-              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Live README Preview</h2>
-              <p id="summary-text" class="mt-1 text-xs text-slate-500"></p>
+      <section class="lg:col-span-6 flex flex-col gap-6">
+
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+          
+          <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-1.5 p-0.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-250 dark:border-zinc-700 rounded-lg">
+              <button onclick="setPreviewViewMode('empty-live')" id="preview-tab-live" class="px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live Preview
+              </button>
+              <button onclick="setPreviewViewMode('example-populated')" id="preview-tab-example" class="px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Example
+              </button>
             </div>
-            <div class="flex gap-2">
-              <button id="copy-readme" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Copy Readme</button>
-              <button id="reset-config" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Reset</button>
-              <button id="toggle-preview-theme" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Dark Preview</button>
-              <button id="refresh-preview" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Refresh</button>
+
+            <div class="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-md border border-zinc-250 dark:border-zinc-750 self-end sm:self-auto">
+              <button onclick="setPreviewTheme('dark')" id="preview-theme-dark" class="px-2.5 py-0.5 text-[9px] font-semibold rounded transition">
+                GitHub Dark
+              </button>
+              <button onclick="setPreviewTheme('light')" id="preview-theme-light" class="px-2.5 py-0.5 text-[9px] font-semibold rounded transition">
+                GitHub Light
+              </button>
             </div>
           </div>
-          <div class="p-5">
-            <div id="preview-shell" class="rounded-md border border-slate-200 bg-slate-50 p-4">
-              <div id="readme-preview" class="font-mono text-sm leading-7 text-slate-800"></div>
-            </div>
+
+          <div id="preview-viewport" class="p-5 md:p-6 transition-colors duration-200 flex-1 overflow-x-auto min-h-[420px]">
+            <div id="preview-canvas" class="font-mono text-[11px] max-w-lg leading-relaxed"></div>
           </div>
+
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 text-[10px] text-zinc-400 dark:text-zinc-500 text-center flex items-center justify-center gap-2">
+            <svg class="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>Preview updates as options change.</span>
+          </div>
+
         </div>
 
-        <div id="status-panel" class="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-3"></div>
-
-        <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
-          <div class="flex items-center justify-between gap-4">
-            <div>
-              <h2 class="text-sm font-semibold uppercase tracking-wide text-emerald-700">Readiness</h2>
-              <p id="readiness-text" class="mt-1 text-sm text-emerald-900"></p>
-            </div>
-            <div class="h-2 w-36 overflow-hidden rounded-full bg-emerald-100">
-              <div id="readiness-bar" class="h-full rounded-full bg-emerald-600"></div>
-            </div>
+        <div id="workflow-yaml-section" class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+          
+          <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              GitHub Actions YAML Workflow
+            </span>
+            <button onclick="copyYamlText()" id="btn-copy-yaml" class="px-2.5 py-1 rounded text-[10px] font-bold tracking-tight transition flex items-center gap-1 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-xs">
+              <span id="copy-yaml-icon">
+                <svg class="w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </span>
+              <span id="copy-yaml-text">Copy YAML</span>
+            </button>
           </div>
+
+          <div class="generated-code-panel relative p-4 font-mono text-[11px] overflow-auto max-h-[300px] border-b border-zinc-250 dark:border-zinc-800">
+            <pre class="generated-code select-all leading-normal whitespace-pre" id="yaml-code-view"></pre>
+          </div>
+
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span>Save this file as <code class="text-zinc-900 dark:text-zinc-100 font-bold bg-zinc-150 dark:bg-zinc-800 px-1 rounded">.github/workflows/waka-stats.yml</code> inside your repository.</span>
+            <span class="text-[9px] text-zinc-400 dark:text-zinc-500 shrink-0">
+              Uses <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="underline hover:text-zinc-700 dark:hover:text-zinc-300">waka-readme-stats</a>
+            </span>
+          </div>
+
         </div>
 
-        <div class="grid gap-6 xl:grid-cols-2">
-          <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">README Markers</h2>
-            <button id="copy-markers" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
+        <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
+          
+          <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Copy README.md Markers
+            </span>
+            <button onclick="copyMarkerText()" id="btn-copy-marker" class="px-2.5 py-1 rounded text-[10px] font-bold tracking-tight transition flex items-center gap-1 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-xs">
+              <span id="copy-marker-icon">
+                <svg class="w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2" />
+                </svg>
+              </span>
+              <span id="copy-marker-text">Copy Markers</span>
+            </button>
           </div>
-          <pre id="markers-output" class="min-h-28 overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
-          <div id="markers-meta" class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500"></div>
+
+          <div class="generated-code-panel relative p-4 font-mono text-[11px] overflow-auto border-b border-zinc-250 dark:border-zinc-800">
+            <pre class="generated-code select-all leading-normal" id="markers-code-view"></pre>
+          </div>
+
+          <div class="p-3 bg-zinc-50 dark:bg-zinc-900 text-[10px] text-zinc-500 dark:text-zinc-400">
+            <p>Place these exact markers inside your profile README. Actions will inject your statistics between these comment lines.</p>
+          </div>
+
         </div>
 
-          <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-            <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Install Notes</h2>
-            </div>
-            <ol class="space-y-3 p-5 text-sm leading-6 text-slate-600">
-              <li><strong>1.</strong> Add the README markers to your profile repository.</li>
-              <li><strong>2.</strong> Add <code>WAKATIME_API_KEY</code> and <code>GH_TOKEN</code> as repository secrets.</li>
-              <li><strong>3.</strong> Save the workflow in your repositry as <code>.github/workflows/<span id="workflow-file-note">waka-stats.yml</span></code>.</li>
-              <li><strong>4.</strong> Run the workflow once from the GitHub Actions tab.</li>
-            </ol>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
-          <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">GitHub Actions YAML</h2>
-            <div class="flex gap-2">
-              <button id="download-yaml" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Download</button>
-              <button id="copy-yaml" class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Copy</button>
-            </div>
-          </div>
-          <pre id="yaml-output" class="max-h-[460px] overflow-auto bg-slate-950 p-5 text-sm leading-6 text-slate-100"></pre>
-          <div id="yaml-meta" class="border-t border-slate-200 px-5 py-3 text-xs text-slate-500"></div>
-        </div>
-
-        <p class="text-xs leading-5 text-slate-500">
-          Powered by <a class="font-medium underline underline-offset-4" href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer">waka-readme-stats</a> by anmol098.
-        </p>
       </section>
+
     </main>
+
+    <footer class="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 py-6 px-4 text-center mt-12">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-zinc-500 dark:text-zinc-500">
+        <p>© 2026 wuisabel. All rights reserved. UI tool by <a href="https://github.com/wuisabel-gif" target="_blank" rel="noopener noreferrer" class="underline hover:text-zinc-800 dark:hover:text-zinc-300 transition">wuisabel-gif</a>. Powered by <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="underline hover:text-zinc-800 dark:hover:text-zinc-300 transition">waka-readme-stats</a> by anmol098.</p>
+        <div class="flex gap-4">
+          <a href="https://github.com/anmol098/waka-readme-stats" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-800 dark:hover:text-zinc-300 transition">Original Repository</a>
+          <a href="https://wakatime.com" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-800 dark:hover:text-zinc-300 transition">WakaTime</a>
+        </div>
+      </div>
+    </footer>
+
   </div>
 
   <script>
-    const readmeMarkers = `<!--START_SECTION:waka-->
+    const README_MARKER = `<!--START_SECTION:waka-->
 <!--END_SECTION:waka-->`;
 
-    const defaults = {
+    const defaultConfig = {
+      provider: 'waka-readme-stats',
       cron: '0 0 * * *',
-      workflowFile: 'waka-stats.yml',
-      title: 'WakaTime Activity Stats',
       timeRange: 'last_7_days',
-      metrics: ['total', 'commit', 'language', 'project']
+      showTitle: true,
+      metrics: ['total', 'commit', 'language'],
+      diagrams: [],
+      compactMode: false,
+      title: 'default',
+      customTitleText: 'My Coding Activity',
+      emojiStyle: 'sparkles'
     };
 
-    const presets = {
-      minimal: {
-        cron: '0 0 * * *',
-        workflowFile: 'waka-stats.yml',
-        title: 'Coding Stats',
-        timeRange: 'last_7_days',
-        compactMode: true,
-        previewStyle: 'compact',
-        showUpdatedDate: true,
-        showLanguagePerRepo: false,
-        metrics: ['total', 'language']
-      },
-      balanced: {
-        cron: '0 0 * * *',
-        workflowFile: 'waka-stats.yml',
-        title: 'WakaTime Activity Stats',
-        timeRange: 'last_30_days',
-        compactMode: false,
-        previewStyle: 'standard',
-        showUpdatedDate: true,
-        showLanguagePerRepo: false,
-        metrics: ['total', 'commit', 'language', 'project']
-      },
-      full: {
-        cron: '0 */6 * * *',
-        workflowFile: 'waka-stats.yml',
-        title: 'Developer Activity',
-        timeRange: 'all_time',
-        compactMode: false,
-        previewStyle: 'standard',
-        showUpdatedDate: true,
-        showLanguagePerRepo: true,
-        metrics: ['total', 'commit', 'language', 'project', 'editor', 'operating_system', 'profile_views', 'lines_of_code', 'pull_requests', 'issues', 'days_of_week', 'time_of_day']
-      }
-    };
-
-    const fallbackWorkflowYaml = `name: WakaTime README Stats
+    const FALLBACK_WORKFLOW_YAML = `name: WakaTime README Stats
 
 on:
   workflow_dispatch:
@@ -340,56 +485,249 @@ jobs:
         with:
           WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }}
           GH_TOKEN: \${{ secrets.GH_TOKEN }}
-          SHOW_TOTAL_CODE_TIME: "True"`;
+          SHOW_TITLE: "True"
+          TIME_RANGE: "last_7_days"
+          SHOW_TOTAL_CODE_TIME: "True"
+          SHOW_COMMIT: "True"
+          SHOW_LANGUAGE: "True"`;
 
-    let darkPreview = false;
-    let activePreset = 'balanced';
-    const storageKey = 'wakaforge-draft-config';
+    const state = {
+      title: 'default',
+      customTitleText: 'My Coding Activity',
+      showTitle: true,
+      timeRange: 'last_7_days',
+      updateFrequency: 'daily',
+      metrics: {
+        codingTime: true,
+        totalCodeTime: true,
+        commitCount: true,
+        commitStreak: false,
+        commitsPerDay: false,
+        languages: true,
+        projects: true,
+        editors: false,
+        operatingSystems: false,
+        linesOfCode: false,
+        profileViews: false,
+        pullRequests: false,
+        issues: false,
+        daysOfWeek: true,
+        timeOfDay: true
+      },
+      diagrams: {
+        textBars: true,
+        languageChart: true,
+        commitChart: false,
+        projectChart: true,
+        timeOfDayChart: true,
+        daysOfWeekChart: true,
+        compactSummary: false,
+        detailedStatsBlock: true
+      },
+      compactMode: false,
+      emojiStyle: 'sparkles',
+      themeMode: 'light',
+      activeTab: 'identity',
+      previewViewMode: 'empty-live',
+      previewTheme: 'light',
+      expandedStep: 1
+    };
 
-    function getSelectedMetrics() {
-      const selected = Array.from(document.querySelectorAll('.metric-toggle'))
-        .filter((input) => input.checked)
-        .map((input) => input.dataset.metric);
+    const EMOJI_OPTIONS = [
+      { id: 'sparkles', label: 'Sparkles', emoji: '✨' },
+      { id: 'wave', label: 'Wave', emoji: '👋' },
+      { id: 'computer', label: 'Computer', emoji: '💻' },
+      { id: 'keyboard', label: 'Keyboard', emoji: '⌨️' },
+      { id: 'fire', label: 'Fire', emoji: '🔥' },
+      { id: 'none', label: 'No Emoji', emoji: '' }
+    ];
 
-      return selected;
+    const TIME_RANGES = [
+      { id: 'last_24_hours', label: 'Last 24 Hours', desc: 'Short-term daily overview' },
+      { id: 'last_7_days', label: 'Last 7 Days', desc: 'Representative weekly activity' },
+      { id: 'last_30_days', label: 'Last 30 Days', desc: 'Monthly coding trends' },
+      { id: 'last_6_months', label: 'Last 6 Months', desc: 'Medium-term project shifts' },
+      { id: 'last_year', label: 'Last Year', desc: 'Yearly activity summary' },
+      { id: 'all_time', label: 'All Time', desc: 'Historical totals' }
+    ];
+
+    const FREQUENCIES = [
+      { id: '6_hours', label: 'Every 6 Hours', cron: '0 */6 * * *', desc: 'Frequent profile updates' },
+      { id: 'daily', label: 'Daily (Midnight)', cron: '0 0 * * *', desc: 'Standard update interval' },
+      { id: 'weekly', label: 'Weekly (Sunday)', cron: '0 0 * * 0', desc: 'Update once a week' },
+      { id: 'monthly', label: 'Monthly (1st)', cron: '0 0 1 * *', desc: 'Low-frequency updates' }
+    ];
+
+    const METRICS_INFO = [
+      { id: 'codingTime', label: 'Coding Activity Time', desc: 'Shows active tracking dates', category: 'General' },
+      { id: 'totalCodeTime', label: 'Total Code Time', desc: 'Shows cumulative tracked duration', category: 'General' },
+      { id: 'commitCount', label: 'Commit Count', desc: 'Displays repository commits', category: 'GitHub Stats' },
+      { id: 'commitStreak', label: 'Commit Streak', desc: 'Shows consecutive active days', category: 'GitHub Stats' },
+      { id: 'commitsPerDay', label: 'Commits Per Day', desc: 'Shows average commit rate', category: 'GitHub Stats' },
+      { id: 'languages', label: 'Languages Used', desc: 'Lists languages with percentages', category: 'WakaTime Data' },
+      { id: 'projects', label: 'Projects List', desc: 'Shows tracked projects', category: 'WakaTime Data' },
+      { id: 'editors', label: 'IDE & Editors', desc: 'Shows editor usage', category: 'WakaTime Data' },
+      { id: 'operatingSystems', label: 'Operating Systems', desc: 'Shows platform usage', category: 'WakaTime Data' },
+      { id: 'linesOfCode', label: 'Lines of Code (LOC)', desc: 'Shows line changes', category: 'GitHub Stats' },
+      { id: 'profileViews', label: 'Profile Views Tracker', desc: 'Shows profile views', category: 'GitHub Stats' },
+      { id: 'pullRequests', label: 'Pull Requests', desc: 'Shows pull request totals', category: 'GitHub Stats' },
+      { id: 'issues', label: 'Issues Logged', desc: 'Shows issue totals', category: 'GitHub Stats' },
+      { id: 'daysOfWeek', label: 'Days of Week Distribution', desc: 'Shows active weekdays', category: 'WakaTime Data' },
+      { id: 'timeOfDay', label: 'Time of Day Profile', desc: 'Shows active time windows', category: 'WakaTime Data' }
+    ];
+
+    const DIAGRAM_INFO = [
+      { id: 'textBars', label: 'Text Progress Bars', desc: 'ASCII progress bar layout', metricDependencies: [] },
+      { id: 'languageChart', label: 'Language Performance Card', desc: 'Language breakdown card', metricDependencies: ['languages'] },
+      { id: 'commitChart', label: 'Commit Distribution Bar', desc: 'Commit activity chart', metricDependencies: ['commitCount'] },
+      { id: 'projectChart', label: 'Project Allocation Block', desc: 'Project time breakdown', metricDependencies: ['projects'] },
+      { id: 'timeOfDayChart', label: 'Time of Day Radial', desc: 'Time window breakdown', metricDependencies: ['timeOfDay'] },
+      { id: 'daysOfWeekChart', label: 'Days of Week Sparkline', desc: 'Weekday activity chart', metricDependencies: ['daysOfWeek'] },
+      { id: 'compactSummary', label: 'Compact Summary Card', desc: 'Condensed profile card', metricDependencies: [] },
+      { id: 'detailedStatsBlock', label: 'Detailed Stats Block', desc: 'Extended stats block', metricDependencies: [] }
+    ];
+
+    const METRIC_OPTION_KEYS = {
+      codingTime: 'coding_time',
+      totalCodeTime: 'total',
+      commitCount: 'commit',
+      commitStreak: 'commit_streak',
+      commitsPerDay: 'commits_per_day',
+      languages: 'language',
+      projects: 'project',
+      editors: 'editor',
+      operatingSystems: 'operating_system',
+      linesOfCode: 'lines_of_code',
+      profileViews: 'profile_views',
+      pullRequests: 'pull_requests',
+      issues: 'issues',
+      daysOfWeek: 'days_of_week',
+      timeOfDay: 'time_of_day'
+    };
+
+    const DIAGRAM_OPTION_KEYS = {
+      textBars: 'text_bars',
+      languageChart: 'language_chart',
+      commitChart: 'commit_chart',
+      projectChart: 'project_chart',
+      timeOfDayChart: 'time_of_day_chart',
+      daysOfWeekChart: 'days_of_week_chart',
+      compactSummary: 'compact_summary',
+      detailedStatsBlock: 'detailed_stats_block'
+    };
+
+    const sampleData = {
+      languages: [
+        { name: 'TypeScript', pct: 45.2, time: '22 hrs 14 mins', color: '#3178c6', bar: '██████████░░░░░░░░░░░' },
+        { name: 'Rust', pct: 24.8, time: '12 hrs 09 mins', color: '#dea584', bar: '█████░░░░░░░░░░░░░░░░' },
+        { name: 'JavaScript', pct: 15.1, time: '7 hrs 25 mins', color: '#f1e05a', bar: '███░░░░░░░░░░░░░░░░░░' },
+        { name: 'HTML/CSS', pct: 10.4, time: '5 hrs 06 mins', color: '#e34c26', bar: '██░░░░░░░░░░░░░░░░░░░' },
+        { name: 'Python', pct: 4.5, time: '2 hrs 12 mins', color: '#3572a5', bar: '█░░░░░░░░░░░░░░░░░░░░' }
+      ],
+      projects: [
+        { name: 'WakaForge-Studio', pct: 52.4, bar: '███████████░░░░░░░░░░' },
+        { name: 'Rust-Parser-Engine', pct: 28.1, bar: '██████░░░░░░░░░░░░░░░' },
+        { name: 'My-Portfolio-v4', pct: 19.5, bar: '████░░░░░░░░░░░░░░░░░' }
+      ],
+      timeOfDay: [
+        { label: '☀️ Morning', pct: 22.4, bar: '█████░░░░░░░░░░░░' },
+        { label: '🌇 Afternoon', pct: 45.1, bar: '██████████░░░░░░░' },
+        { label: '🌙 Evening', pct: 28.5, bar: '██████░░░░░░░░░░░' },
+        { label: '🌌 Night', pct: 4.0, bar: '█░░░░░░░░░░░░░░░░' }
+      ],
+      daysOfWeek: [
+        { day: 'Monday', pct: 18.2, bar: '████░░░░░░░░░░░░░' },
+        { day: 'Tuesday', pct: 20.4, bar: '█████░░░░░░░░░░░░' },
+        { day: 'Wednesday', pct: 22.1, bar: '██████░░░░░░░░░░░' },
+        { day: 'Thursday', pct: 16.5, bar: '████░░░░░░░░░░░░░' },
+        { day: 'Friday', pct: 15.8, bar: '███░░░░░░░░░░░░░░' }
+      ]
+    };
+
+    function escapeYamlString(value) {
+      return String(value ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     }
 
-    function getConfig() {
+    function selectedKeys(optionMap, keyMap) {
+      return Object.keys(optionMap || {}).filter((key) => optionMap[key]).map((key) => keyMap[key]).filter(Boolean);
+    }
+
+    function getDashboardConfig() {
+      const selectedFrequency = FREQUENCIES.find((freq) => freq.id === state.updateFrequency);
       return {
-        cron: document.getElementById('cron-select').value || defaults.cron,
-        workflowFile: document.getElementById('workflow-file').value.trim() || defaults.workflowFile,
-        title: document.getElementById('section-title').value.trim() || defaults.title,
-        timeRange: document.getElementById('time-range').value || defaults.timeRange,
-        previewStyle: document.getElementById('preview-style').value || 'standard',
-        showTitle: document.getElementById('show-title').checked,
-        compactMode: document.getElementById('compact-mode').checked,
-        showUpdatedDate: document.getElementById('show-updated-date').checked,
-        showLanguagePerRepo: document.getElementById('show-language-per-repo').checked,
-        hasWakaSecret: document.getElementById('has-waka-secret').checked,
-        hasGhSecret: document.getElementById('has-gh-secret').checked,
-        metrics: getSelectedMetrics()
+        ...defaultConfig,
+        cron: selectedFrequency?.cron || defaultConfig.cron,
+        timeRange: state.timeRange || defaultConfig.timeRange,
+        showTitle: state.showTitle,
+        metrics: selectedKeys(state.metrics, METRIC_OPTION_KEYS),
+        diagrams: selectedKeys(state.diagrams, DIAGRAM_OPTION_KEYS),
+        compactMode: state.compactMode,
+        title: state.title,
+        customTitleText: state.customTitleText,
+        emojiStyle: state.emojiStyle
       };
     }
 
-    function escapeYaml(value) {
-      return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    function normalizeDashboardConfig(config) {
+      const source = config && typeof config === 'object' ? config : {};
+      return {
+        ...defaultConfig,
+        ...source,
+        cron: typeof source.cron === 'string' && source.cron.trim() ? source.cron.trim() : defaultConfig.cron,
+        timeRange: source.timeRange || defaultConfig.timeRange,
+        showTitle: typeof source.showTitle === 'boolean' ? source.showTitle : defaultConfig.showTitle,
+        metrics: Array.isArray(source.metrics) ? source.metrics : defaultConfig.metrics,
+        diagrams: Array.isArray(source.diagrams) ? source.diagrams : defaultConfig.diagrams,
+        compactMode: Boolean(source.compactMode),
+        title: source.title || defaultConfig.title,
+        customTitleText: source.customTitleText ?? defaultConfig.customTitleText,
+        emojiStyle: source.emojiStyle || defaultConfig.emojiStyle
+      };
     }
 
-    function metricsForOutput(config) {
-      return config.metrics.length ? config.metrics : ['total'];
+    function hasOption(config, key, value) {
+      return Array.isArray(config[key]) && config[key].includes(value);
+    }
+
+    function generateOptions(config) {
+      const showCommit = ['commit', 'commits_per_day', 'commit_streak'].some((metric) => hasOption(config, 'metrics', metric));
+      const rows = [
+        `          SHOW_TITLE: "${config.showTitle ? 'True' : 'False'}"`
+      ];
+      if (config.showTitle && config.title === 'custom' && String(config.customTitleText || '').trim()) {
+        rows.push(`          SECTION_NAME: "${escapeYamlString(config.customTitleText)}"`);
+      }
+      rows.push(`          TIME_RANGE: "${escapeYamlString(config.timeRange)}"`);
+      rows.push(`          SHOW_TITLE_EMOJI: "${config.emojiStyle && config.emojiStyle !== 'none' ? 'True' : 'False'}"`);
+      if (config.emojiStyle && config.emojiStyle !== 'none') rows.push(`          SYMBOL_VERSION: "${escapeYamlString(config.emojiStyle)}"`);
+      if (config.compactMode) rows.push(`          SHOW_SHORT_INFO: "True"`);
+      rows.push(`          SHOW_UPDATED_DATE: "${hasOption(config, 'metrics', 'coding_time') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_TOTAL_CODE_TIME: "${hasOption(config, 'metrics', 'total') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_COMMIT: "${showCommit ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_LANGUAGE: "${hasOption(config, 'metrics', 'language') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_PROJECTS: "${hasOption(config, 'metrics', 'project') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_EDITORS: "${hasOption(config, 'metrics', 'editor') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_OS: "${hasOption(config, 'metrics', 'operating_system') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_LINES_OF_CODE: "${hasOption(config, 'metrics', 'lines_of_code') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_LOC_CHART: "${hasOption(config, 'metrics', 'lines_of_code') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_PROFILE_VIEWS: "${hasOption(config, 'metrics', 'profile_views') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_PULL_REQUESTS: "${hasOption(config, 'metrics', 'pull_requests') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_ISSUES: "${hasOption(config, 'metrics', 'issues') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_DAYS_OF_WEEK: "${hasOption(config, 'metrics', 'days_of_week') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_TIME_OF_DAY: "${hasOption(config, 'metrics', 'time_of_day') ? 'True' : 'False'}"`);
+      rows.push(`          SHOW_LANGUAGE_PER_REPO: "False"`);
+      return rows.join('\n');
     }
 
     function generateWorkflowYaml(config) {
       try {
-        const safeTitle = config.title || defaults.title;
-        const safeCron = config.cron || defaults.cron;
-        const safeMetrics = metricsForOutput(config);
+        const safeConfig = normalizeDashboardConfig(config);
         const yaml = `name: WakaTime README Stats
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "${safeCron}"
+    - cron: "${escapeYamlString(safeConfig.cron)}"
 
 jobs:
   update-readme:
@@ -399,300 +737,416 @@ jobs:
         with:
           WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }}
           GH_TOKEN: \${{ secrets.GH_TOKEN }}
-          SHOW_TITLE: "${config.showTitle ? 'True' : 'False'}"
-          SECTION_NAME: "${escapeYaml(safeTitle)}"
-          TIME_RANGE: "${config.timeRange}"
-          SHOW_SHORT_INFO: "${config.compactMode ? 'True' : 'False'}"
-          SHOW_UPDATED_DATE: "${config.showUpdatedDate ? 'True' : 'False'}"
-          SHOW_TOTAL_CODE_TIME: "${safeMetrics.includes('total') ? 'True' : 'False'}"
-          SHOW_COMMIT: "${safeMetrics.includes('commit') ? 'True' : 'False'}"
-          SHOW_LANGUAGE: "${safeMetrics.includes('language') ? 'True' : 'False'}"
-          SHOW_LANGUAGE_PER_REPO: "${config.showLanguagePerRepo ? 'True' : 'False'}"
-          SHOW_PROJECTS: "${safeMetrics.includes('project') ? 'True' : 'False'}"
-          SHOW_EDITORS: "${safeMetrics.includes('editor') ? 'True' : 'False'}"
-          SHOW_OS: "${safeMetrics.includes('operating_system') ? 'True' : 'False'}"
-          SHOW_PROFILE_VIEWS: "${safeMetrics.includes('profile_views') ? 'True' : 'False'}"
-          SHOW_LINES_OF_CODE: "${safeMetrics.includes('lines_of_code') ? 'True' : 'False'}"
-          SHOW_LOC_CHART: "${safeMetrics.includes('lines_of_code') ? 'True' : 'False'}"
-          SHOW_PULL_REQUESTS: "${safeMetrics.includes('pull_requests') ? 'True' : 'False'}"
-          SHOW_ISSUES: "${safeMetrics.includes('issues') ? 'True' : 'False'}"
-          SHOW_DAYS_OF_WEEK: "${safeMetrics.includes('days_of_week') ? 'True' : 'False'}"
-          SHOW_TIME_OF_DAY: "${safeMetrics.includes('time_of_day') ? 'True' : 'False'}"`;
-        return yaml.trim() || fallbackWorkflowYaml;
-      } catch (error) {
-        return fallbackWorkflowYaml;
+${generateOptions(safeConfig)}`;
+        return yaml.trim() || FALLBACK_WORKFLOW_YAML;
+      } catch (err) {
+        return FALLBACK_WORKFLOW_YAML;
       }
     }
 
-    function generateReadmeSnippet(config) {
-      const previewText = document.getElementById('readme-preview').innerText.trim();
-      return previewText || readmeMarkers;
+    function toggleThemeMode() {
+      state.themeMode = state.themeMode === 'light' ? 'dark' : 'light';
+      render();
     }
 
-    function renderPreview(config) {
-      const markerLines = readmeMarkers.split('\n');
-      const visibleMetrics = metricsForOutput(config);
-      const standardLines = [
-        markerLines[0],
-        config.showTitle ? config.title : '',
-        config.showUpdatedDate ? 'Last updated: today' : '',
-        visibleMetrics.includes('total') ? `Total code time: 49 hrs 18 mins (${config.timeRange})` : '',
-        visibleMetrics.includes('commit') ? 'Commits: 143 · Current streak: 12 days' : '',
-        visibleMetrics.includes('language') ? 'Languages: TypeScript 45%, JavaScript 15%, Python 5%' : '',
-        config.showLanguagePerRepo && visibleMetrics.includes('language') ? 'Language per repo: frontend TypeScript · docs Markdown' : '',
-        visibleMetrics.includes('project') ? 'Projects: WakaForge, Portfolio, Docs' : '',
-        visibleMetrics.includes('editor') ? 'Editors: VS Code, Neovim' : '',
-        visibleMetrics.includes('operating_system') ? 'OS: macOS 75%, Linux 25%' : '',
-        visibleMetrics.includes('profile_views') ? 'Profile views: 2,410' : '',
-        visibleMetrics.includes('lines_of_code') ? 'Lines changed: +2.4k / -1.1k' : '',
-        visibleMetrics.includes('pull_requests') ? 'Pull requests: 32 merged' : '',
-        visibleMetrics.includes('issues') ? 'Issues: 18 closed' : '',
-        visibleMetrics.includes('days_of_week') ? 'Most active day: Wednesday' : '',
-        visibleMetrics.includes('time_of_day') ? 'Most active time: Afternoon' : '',
-        markerLines[1]
-      ].filter(Boolean);
-
-      const compactLines = [
-        markerLines[0],
-        config.showTitle ? config.title : '',
-        [
-          visibleMetrics.includes('total') ? '49h code time' : '',
-          visibleMetrics.includes('commit') ? '143 commits' : '',
-          visibleMetrics.includes('language') ? 'TypeScript 45%' : '',
-          visibleMetrics.includes('project') ? '3 projects' : '',
-          visibleMetrics.includes('profile_views') ? '2.4k views' : ''
-        ].filter(Boolean).join(' · '),
-        markerLines[1]
-      ].filter(Boolean);
-
-      const previewLines = config.compactMode || config.previewStyle === 'compact' ? compactLines : standardLines;
-      document.getElementById('readme-preview').innerText = previewLines.join('\n');
+    function setActiveTab(tabId) {
+      state.activeTab = tabId;
+      render();
     }
 
-    function validateConfig(config) {
-      const messages = [];
-      if (config.title.length > 48) messages.push('Section title is long and may wrap awkwardly in a README.');
-      if (!config.workflowFile.endsWith('.yml') && !config.workflowFile.endsWith('.yaml')) messages.push('Workflow file name should usually end in .yml or .yaml.');
-      if (config.workflowFile.includes('/')) messages.push('Use only the workflow file name, not the full .github/workflows path.');
-      if (!config.metrics.length) messages.push('At least one metric should be selected. The YAML falls back to total code time.');
-      if (config.compactMode && config.previewStyle !== 'compact') messages.push('Compact mode is enabled, so the preview uses compact output.');
-      if (config.showLanguagePerRepo && !metricsForOutput(config).includes('language')) messages.push('Language per repo works best when language stats are enabled.');
-      if (!config.hasWakaSecret || !config.hasGhSecret) messages.push('Add both repository secrets before running the workflow.');
-      return messages;
+    function toggleConfig(key) {
+      if (key === 'compactMode') state.compactMode = !state.compactMode;
+      if (key === 'showTitle') state.showTitle = !state.showTitle;
+      render();
     }
 
-    function renderValidation(config) {
-      const panel = document.getElementById('validation-panel');
-      const messages = validateConfig(config);
-      panel.classList.toggle('hidden', !messages.length);
-      panel.innerHTML = messages.map((message) => `<div>${message}</div>`).join('');
+    function setPreviewViewMode(modeId) {
+      state.previewViewMode = modeId;
+      render();
     }
 
-    function renderSummary(config) {
-      const metricCount = metricsForOutput(config).length;
-      const mode = config.compactMode || config.previewStyle === 'compact' ? 'compact preview' : 'standard preview';
-      document.getElementById('summary-text').innerText = `${metricCount} metrics selected · ${mode} · schedule ${config.cron}`;
+    function setPreviewTheme(themeId) {
+      state.previewTheme = themeId;
+      render();
     }
 
-    function renderStatus(config) {
-      const rows = [
-        ['Schedule', config.cron],
-        ['Output', config.compactMode ? 'Compact YAML enabled' : 'Standard YAML'],
-        ['Metrics', config.metrics.length ? `${config.metrics.length} selected` : 'fallback enabled'],
-        ['Preview', darkPreview ? 'Dark GitHub style' : 'Light GitHub style'],
-        ['Workflow file', config.workflowFile]
-      ];
-      document.getElementById('status-panel').className = 'grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:grid-cols-5';
-      document.getElementById('status-panel').innerHTML = rows.map(([label, value]) => `
-        <div class="rounded-md border border-slate-200 p-3">
-          <div class="text-xs font-semibold uppercase tracking-wide text-slate-400">${label}</div>
-          <div class="mt-1 font-medium text-slate-800">${value}</div>
-        </div>
-      `).join('');
+    function setExpandedStep(stepIdx) {
+      state.expandedStep = state.expandedStep === stepIdx ? null : stepIdx;
+      renderStepGuide();
     }
 
-    function renderOutputMeta() {
-      const markerText = document.getElementById('markers-output').innerText;
-      const yamlText = document.getElementById('yaml-output').innerText;
-      document.getElementById('markers-meta').innerText = `${markerText.split('\n').length} lines`;
-      document.getElementById('yaml-meta').innerText = `${yamlText.split('\n').length} lines · ${yamlText.length} charaters`;
+    function toggleEmoji(emojiId) {
+      state.emojiStyle = emojiId;
+      render();
     }
 
-    function renderReadiness(config) {
-      const messages = validateConfig(config);
-      const metricScore = Math.min(metricsForOutput(config).length * 5, 35);
-      const secretScore = config.hasWakaSecret && config.hasGhSecret ? 20 : 8;
-      const warningPenalty = Math.min(messages.length * 7, 21);
-      const score = Math.max(45, Math.min(90, 35 + metricScore + secretScore - warningPenalty));
-      document.getElementById('readiness-text').innerText = `${score}% ready · ${messages.length ? 'review warnings before release' : 'ready for final QA'}`;
-      document.getElementById('readiness-bar').style.width = `${score}%`;
+    function toggleTimeRange(rangeId) {
+      state.timeRange = rangeId;
+      render();
     }
 
-    function renderPresetState() {
-      document.querySelectorAll('.preset-button').forEach((button) => {
-        const isActive = button.dataset.preset === activePreset;
-        button.className = isActive
-          ? 'preset-button rounded-md border border-slate-900 bg-slate-900 px-3 py-2 text-xs font-semibold text-white'
-          : 'preset-button rounded-md border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50';
-      });
+    function toggleFrequency(freqId) {
+      state.updateFrequency = freqId;
+      render();
     }
 
-    function renderPreviewTheme() {
-      const shell = document.getElementById('preview-shell');
-      const preview = document.getElementById('readme-preview');
-      const button = document.getElementById('toggle-preview-theme');
+    function handleTitleTypeChange(type) {
+      state.title = type;
+      render();
+    }
 
-      shell.className = darkPreview
-        ? 'rounded-md border border-slate-700 bg-slate-950 p-4'
-        : 'rounded-md border border-slate-200 bg-slate-50 p-4';
-      preview.className = darkPreview
-        ? 'font-mono text-sm leading-7 text-slate-100'
-        : 'font-mono text-sm leading-7 text-slate-800';
-      button.innerText = darkPreview ? 'Light Preview' : 'Dark Preview';
+    function handleCustomTitleInput(value) {
+      state.customTitleText = value;
+      renderYAML();
+      renderLivePreview();
+    }
+
+    function handleMetricToggle(metricId) {
+      state.metrics[metricId] = !state.metrics[metricId];
+      if (!state.metrics[metricId]) {
+        DIAGRAM_INFO.forEach((diagram) => {
+          if (diagram.metricDependencies.includes(metricId)) state.diagrams[diagram.id] = false;
+        });
+      }
+      render();
+    }
+
+    function handleDiagramToggle(diagramId) {
+      state.diagrams[diagramId] = !state.diagrams[diagramId];
+      if (state.diagrams[diagramId]) {
+        const diagram = DIAGRAM_INFO.find((item) => item.id === diagramId);
+        if (diagram) diagram.metricDependencies.forEach((metricId) => state.metrics[metricId] = true);
+      }
+      render();
+    }
+
+    function handleBackStep() {
+      if (state.activeTab === 'metrics') setActiveTab('identity');
+      else if (state.activeTab === 'frequency') setActiveTab('metrics');
+    }
+
+    function handleContinueStep() {
+      if (state.activeTab === 'identity') setActiveTab('metrics');
+      else if (state.activeTab === 'metrics') setActiveTab('frequency');
+      else {
+        copyYamlText();
+        document.getElementById('workflow-yaml-section')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function applyPreset(presetType) {
+      if (presetType === 'minimalist') {
+        Object.assign(state, {
+          title: 'default',
+          customTitleText: '',
+          showTitle: false,
+          timeRange: 'last_7_days',
+          updateFrequency: 'daily',
+          compactMode: true,
+          emojiStyle: 'none'
+        });
+        state.metrics = { codingTime: true, totalCodeTime: true, commitCount: false, commitStreak: false, commitsPerDay: false, languages: true, projects: false, editors: false, operatingSystems: false, linesOfCode: false, profileViews: false, pullRequests: false, issues: false, daysOfWeek: false, timeOfDay: false };
+        state.diagrams = { textBars: true, languageChart: false, commitChart: false, projectChart: false, timeOfDayChart: false, daysOfWeekChart: false, compactSummary: true, detailedStatsBlock: false };
+      } else if (presetType === 'full-spectrum') {
+        Object.assign(state, {
+          title: 'custom',
+          customTitleText: 'Ultimate Developer Matrix Stats',
+          showTitle: true,
+          timeRange: 'all_time',
+          updateFrequency: '6_hours',
+          compactMode: false,
+          emojiStyle: 'fire'
+        });
+        Object.keys(state.metrics).forEach((key) => state.metrics[key] = true);
+        state.diagrams = { textBars: true, languageChart: true, commitChart: true, projectChart: true, timeOfDayChart: true, daysOfWeekChart: true, compactSummary: false, detailedStatsBlock: true };
+      } else if (presetType === 'git-focused') {
+        Object.assign(state, {
+          title: 'default',
+          customTitleText: 'My Git Activity Flow',
+          showTitle: true,
+          timeRange: 'last_30_days',
+          updateFrequency: 'daily',
+          compactMode: false,
+          emojiStyle: 'keyboard'
+        });
+        state.metrics = { codingTime: false, totalCodeTime: false, commitCount: true, commitStreak: true, commitsPerDay: true, languages: false, projects: true, editors: false, operatingSystems: false, linesOfCode: true, profileViews: true, pullRequests: true, issues: true, daysOfWeek: true, timeOfDay: true };
+        state.diagrams = { textBars: true, languageChart: false, commitChart: true, projectChart: true, timeOfDayChart: true, daysOfWeekChart: true, compactSummary: false, detailedStatsBlock: true };
+      }
+      render();
+    }
+
+    function setClass(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.className = value;
     }
 
     function render() {
-      const config = getConfig();
-      document.getElementById('markers-output').innerText = readmeMarkers;
-      document.getElementById('yaml-output').innerText = generateWorkflowYaml(config);
-      document.getElementById('workflow-file-note').innerText = config.workflowFile;
-      renderPreview(config);
-      renderSummary(config);
-      renderStatus(config);
-      renderValidation(config);
-      renderPreviewTheme();
-      renderOutputMeta();
-      renderPresetState();
-      renderReadiness(config);
-      saveDraft(config);
-    }
+      document.documentElement.classList.toggle('dark', state.themeMode === 'dark');
+      document.body.className = state.themeMode === 'dark'
+        ? 'bg-zinc-950 text-zinc-50 transition-colors duration-200'
+        : 'bg-zinc-50 text-zinc-900 transition-colors duration-200';
+      document.getElementById('theme-icon-sun')?.classList.toggle('hidden', state.themeMode !== 'dark');
+      document.getElementById('theme-icon-moon')?.classList.toggle('hidden', state.themeMode === 'dark');
 
-    async function copyText(id, button) {
-      const value = document.getElementById(id).innerText.trim();
-      const label = button.innerText;
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(value);
-        } else {
-          const textarea = document.createElement('textarea');
-          textarea.value = value;
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textarea);
-        }
-        button.innerText = 'Copied';
-      } catch (error) {
-        button.innerText = 'Copy failed';
-      } finally {
-        setTimeout(() => {
-          button.innerText = label;
-        }, 1200);
-      }
-    }
-
-    function applyPreset(name) {
-      const preset = presets[name] || presets.balanced;
-      activePreset = presets[name] ? name : 'balanced';
-      document.getElementById('cron-select').value = preset.cron;
-      document.getElementById('workflow-file').value = preset.workflowFile;
-      document.getElementById('section-title').value = preset.title;
-      document.getElementById('time-range').value = preset.timeRange;
-      document.getElementById('preview-style').value = preset.previewStyle;
-      document.getElementById('compact-mode').checked = preset.compactMode;
-      document.getElementById('show-title').checked = true;
-      document.getElementById('show-updated-date').checked = preset.showUpdatedDate;
-      document.getElementById('show-language-per-repo').checked = preset.showLanguagePerRepo;
-      document.getElementById('has-waka-secret').checked = false;
-      document.getElementById('has-gh-secret').checked = false;
-      document.querySelectorAll('.metric-toggle').forEach((input) => {
-        input.checked = preset.metrics.includes(input.dataset.metric);
+      ['identity', 'metrics', 'frequency'].forEach((tab) => {
+        const active = state.activeTab === tab;
+        setClass(`tab-btn-${tab}`, active
+          ? 'flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all bg-white dark:bg-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-sm border border-zinc-200/50 dark:border-zinc-700/50'
+          : 'flex-1 text-center py-2 text-xs font-semibold rounded-md transition-all text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200');
+        document.getElementById(`tab-panel-${tab}`)?.classList.toggle('hidden', !active);
       });
-      render();
-    }
 
-    function resetConfig() {
-      applyPreset('balanced');
-    }
-
-    function markCustomConfig() {
-      activePreset = '';
-      render();
-    }
-
-    function downloadYaml() {
-      const yaml = document.getElementById('yaml-output').innerText.trim() || fallbackWorkflowYaml;
-      const config = getConfig();
-      const blob = new Blob([yaml], { type: 'text/yaml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = config.workflowFile || defaults.workflowFile;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function saveDraft(config) {
-      try {
-        localStorage.setItem(storageKey, JSON.stringify({ ...config, darkPreview, activePreset }));
-      } catch (error) {
+      const backBtn = document.getElementById('btn-back-step');
+      const continueBtn = document.getElementById('btn-continue-step');
+      if (backBtn) backBtn.toggleAttribute('disabled', state.activeTab === 'identity');
+      if (continueBtn) {
+        continueBtn.innerHTML = state.activeTab === 'frequency'
+          ? '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>Copy Workflow & Finish'
+          : 'Continue';
+        continueBtn.className = state.activeTab === 'frequency'
+          ? 'px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-600 hover:bg-emerald-550 text-white shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5'
+          : 'px-3 py-1.5 rounded-md text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-sm transition';
       }
+
+      renderIdentityTab();
+      renderMetricsTab();
+      renderFrequencyTab();
+      renderPreviewTabButtons();
+      renderStepGuide();
+      renderYAML();
+      renderLivePreview();
     }
 
-    function loadDraft() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
-        if (!saved) return;
-        document.getElementById('cron-select').value = saved.cron || defaults.cron;
-        document.getElementById('workflow-file').value = saved.workflowFile || defaults.workflowFile;
-        document.getElementById('section-title').value = saved.title || defaults.title;
-        document.getElementById('time-range').value = saved.timeRange || defaults.timeRange;
-        document.getElementById('preview-style').value = saved.previewStyle || 'standard';
-        document.getElementById('show-title').checked = saved.showTitle !== false;
-        document.getElementById('compact-mode').checked = Boolean(saved.compactMode);
-        document.getElementById('show-updated-date').checked = saved.showUpdatedDate !== false;
-        document.getElementById('show-language-per-repo').checked = Boolean(saved.showLanguagePerRepo);
-        document.getElementById('has-waka-secret').checked = Boolean(saved.hasWakaSecret);
-        document.getElementById('has-gh-secret').checked = Boolean(saved.hasGhSecret);
-        document.querySelectorAll('.metric-toggle').forEach((input) => {
-          input.checked = Array.isArray(saved.metrics) && saved.metrics.includes(input.dataset.metric);
-        });
-        darkPreview = Boolean(saved.darkPreview);
-        activePreset = saved.activePreset || '';
-      } catch (error) {
+    function renderSwitch(id, isOn) {
+      const control = document.getElementById(id);
+      if (!control) return;
+      const thumb = control.querySelector('.switch-thumb');
+      control.className = isOn
+        ? 'w-9 h-5 rounded-full transition-colors relative flex items-center bg-zinc-900 dark:bg-zinc-100'
+        : 'w-9 h-5 rounded-full transition-colors relative flex items-center bg-zinc-250 dark:bg-zinc-800';
+      if (thumb) thumb.className = isOn
+        ? 'switch-thumb block w-3.5 h-3.5 rounded-full bg-white dark:bg-zinc-950 shadow-xs translate-x-4.5'
+        : 'switch-thumb block w-3.5 h-3.5 rounded-full bg-white shadow-xs translate-x-1';
+    }
+
+    function renderIdentityTab() {
+      renderSwitch('switch-showTitle', state.showTitle);
+      renderSwitch('switch-compactMode', state.compactMode);
+      document.getElementById('title-controls-panel')?.classList.toggle('hidden', !state.showTitle);
+      document.getElementById('custom-title-input-wrapper')?.classList.toggle('hidden', state.title !== 'custom');
+      setClass('btn-title-default', state.title === 'default' ? selectedButtonClass() : neutralButtonClass());
+      setClass('btn-title-custom', state.title === 'custom' ? selectedButtonClass() : neutralButtonClass());
+      const customInput = document.getElementById('custom-title-input');
+      if (customInput && customInput.value !== state.customTitleText) customInput.value = state.customTitleText;
+      fillGrid('emoji-options-grid', EMOJI_OPTIONS, (item) => `
+        <button onclick="toggleEmoji('${item.id}')" class="px-2 py-1.5 text-xs rounded-md border transition flex items-center justify-center gap-1 ${state.emojiStyle === item.id ? selectedChoiceClass() : defaultChoiceClass()}">
+          <span>${item.emoji}</span><span class="truncate">${item.label}</span>
+        </button>`);
+      fillGrid('timeframe-options-grid', TIME_RANGES, (item) => `
+        <button onclick="toggleTimeRange('${item.id}')" class="p-2.5 rounded-lg border text-left transition flex flex-col justify-between ${state.timeRange === item.id ? selectedCardClass() : defaultCardClass()}">
+          <span class="text-[11px] font-bold">${item.label}</span>
+          <span class="text-[9px] text-zinc-400 dark:text-zinc-500 truncate mt-0.5">${item.desc}</span>
+        </button>`);
+    }
+
+    function renderMetricsTab() {
+      fillGrid('diagrams-grid', DIAGRAM_INFO, (item) => {
+        const selected = state.diagrams[item.id];
+        return `<button onclick="handleDiagramToggle('${item.id}')" class="p-3 rounded-lg border text-left transition flex gap-3 items-start ${selected ? selectedCardClass() : defaultCardClass()}">
+          <div class="mt-0.5 w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 ${selected ? 'bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-950' : 'border-zinc-300 dark:border-zinc-700'}">${selected ? checkIcon() : ''}</div>
+          <div><span class="text-[11px] font-bold block text-zinc-900 dark:text-zinc-200">${item.label}</span><span class="text-[9px] text-zinc-400 dark:text-zinc-500 leading-tight mt-0.5 block">${item.desc}</span></div>
+        </button>`;
+      });
+      fillGrid('metrics-scroller', METRICS_INFO, (item) => {
+        const selected = state.metrics[item.id];
+        const required = DIAGRAM_INFO.some((diagram) => state.diagrams[diagram.id] && diagram.metricDependencies.includes(item.id));
+        return `<div ${required ? '' : `onclick="handleMetricToggle('${item.id}')"`} class="p-2 rounded-md border transition-all flex items-center justify-between gap-3 ${required ? 'bg-zinc-50/50 dark:bg-zinc-900/30 border-zinc-100 dark:border-zinc-900 text-zinc-400 cursor-not-allowed opacity-75' : 'bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-850 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/50 text-zinc-700 dark:text-zinc-300 cursor-pointer'}">
+          <div class="flex items-center gap-2"><div class="w-3.5 h-3.5 rounded flex items-center justify-center ${(selected || required) ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold' : 'border border-zinc-300 dark:border-zinc-700'}">${(selected || required) ? checkIcon() : ''}</div>
+          <div><span class="text-[11px] font-bold block text-zinc-900 dark:text-zinc-200">${item.label}</span><span class="text-[9px] text-zinc-400 dark:text-zinc-500">${item.desc}</span></div></div>
+          <span class="text-[8px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded bg-zinc-50 dark:bg-zinc-900 text-zinc-400">${required ? 'Required' : item.category}</span>
+        </div>`;
+      });
+    }
+
+    function renderFrequencyTab() {
+      fillGrid('frequency-grid', FREQUENCIES, (item) => `
+        <button onclick="toggleFrequency('${item.id}')" class="p-3.5 rounded-lg border text-left transition flex flex-col justify-between ${state.updateFrequency === item.id ? selectedCardClass() : defaultCardClass()}">
+          <div class="flex items-center justify-between w-full"><span class="text-xs font-bold text-zinc-900 dark:text-zinc-100">${item.label}</span><span class="text-[10px] font-mono bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-zinc-600 dark:text-zinc-300">${item.cron}</span></div>
+          <p class="text-[10px] text-zinc-450 dark:text-zinc-500 mt-2">${item.desc}</p>
+        </button>`);
+    }
+
+    function renderPreviewTabButtons() {
+      const activeClass = 'px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50 shadow-xs';
+      const inactiveClass = 'px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200';
+      setClass('preview-tab-live', state.previewViewMode === 'empty-live' ? activeClass : inactiveClass);
+      setClass('preview-tab-example', state.previewViewMode === 'example-populated' ? activeClass : inactiveClass);
+      setClass('preview-theme-dark', state.previewTheme === 'dark' ? themeActiveClass() : themeInactiveClass());
+      setClass('preview-theme-light', state.previewTheme === 'light' ? themeActiveClass() : themeInactiveClass());
+    }
+
+    function renderStepGuide() {
+      [1, 2, 3].forEach((idx) => {
+        const arrow = document.getElementById(`step-arrow-${idx}`);
+        const desc = document.getElementById(`step-desc-${idx}`);
+        if (arrow) arrow.innerHTML = state.expandedStep === idx ? '▲' : '▼';
+        if (desc) desc.classList.toggle('hidden', state.expandedStep !== idx);
+      });
+    }
+
+    function renderYAML() {
+      const yaml = generateWorkflowYaml(getDashboardConfig());
+      const yamlView = document.getElementById('yaml-code-view');
+      const markerView = document.getElementById('markers-code-view');
+      if (yamlView) yamlView.innerText = yaml;
+      if (markerView) markerView.innerText = README_MARKER;
+    }
+
+    function generatedYaml() {
+      return generateWorkflowYaml(getDashboardConfig());
+    }
+
+    function renderLivePreview() {
+      const viewport = document.getElementById('preview-viewport');
+      const canvas = document.getElementById('preview-canvas');
+      if (!viewport || !canvas) return;
+      viewport.className = state.previewTheme === 'dark'
+        ? 'p-5 md:p-6 transition-colors duration-200 flex-1 overflow-x-auto min-h-[420px] bg-[#0d1117] text-[#c9d1d9]'
+        : 'p-5 md:p-6 transition-colors duration-200 flex-1 overflow-x-auto min-h-[420px] bg-white text-[#24292f]';
+
+      const emoji = EMOJI_OPTIONS.find((item) => item.id === state.emojiStyle);
+      const titleText = state.title === 'custom' ? state.customTitleText : 'WakaTime Activity Stats';
+      let html = '';
+
+      if (state.showTitle) {
+        html += `<div class="text-sm font-bold mb-4 flex items-center gap-1.5 border-b pb-1.5 ${state.previewTheme === 'dark' ? 'text-[#f0f6fc] border-[#21262d]' : 'text-[#1f2328] border-[#d0d7de]'}">${state.emojiStyle !== 'none' && emoji ? `${emoji.emoji} ` : ''}${titleText}</div>`;
       }
+
+      html += '<div class="space-y-4"><div class="space-y-1">';
+      if (state.metrics.codingTime) html += `<div class="flex items-center justify-between opacity-80 text-[10px]"><span>🕒 Last updated on:</span><span>${new Date().toUTCString()}</span></div>`;
+      if (state.metrics.totalCodeTime) {
+        const range = TIME_RANGES.find((item) => item.id === state.timeRange)?.label.toLowerCase() || 'last 7 days';
+        html += `<div class="flex items-center justify-between font-bold text-[10px]"><span>⌛ Total code duration:</span><span>49 hrs 18 mins (over ${range})</span></div>`;
+      }
+      html += '</div>';
+
+      if (state.metrics.commitCount || state.metrics.commitsPerDay || state.metrics.commitStreak || state.metrics.linesOfCode) {
+        html += `<div class="p-3 rounded border space-y-1.5 ${state.previewTheme === 'dark' ? 'bg-[#161b22] border-[#21262d]' : 'bg-[#f6f8fa] border-[#d0d7de]'}"><div class="text-[9px] uppercase font-bold tracking-wider opacity-60">GitHub Contributions Metrics</div><div class="grid grid-cols-2 gap-2 text-xs">
+          ${state.metrics.commitCount ? '<div><span class="opacity-75">Commits:</span> <strong>143</strong></div>' : ''}
+          ${state.metrics.commitStreak ? '<div><span class="opacity-75">Streak:</span> <strong class="text-emerald-500">12 Days</strong></div>' : ''}
+          ${state.metrics.commitsPerDay ? '<div><span class="opacity-75">Daily Avg:</span> <strong>4.8 / day</strong></div>' : ''}
+          ${state.metrics.linesOfCode ? '<div><span class="opacity-75">LOC Modified:</span> <strong>+2.4k / -1.1k</strong></div>' : ''}
+        </div></div>`;
+      }
+
+      if (state.metrics.languages && state.diagrams.textBars) html += statRows('Languages Activity', sampleData.languages, (item) => `<span class="w-24 font-semibold truncate flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>${item.name}</span><span class="font-mono text-[10px] opacity-55 flex-1 truncate max-w-xs sm:px-2">${item.bar}</span><span class="text-right w-24">${item.time} (${item.pct}%)</span>`);
+      if (state.metrics.languages && state.diagrams.languageChart) html += languageChart();
+      if (state.metrics.projects && state.diagrams.projectChart) html += statRows('Project Time Breakdown', sampleData.projects, (item) => `<span class="w-32 font-semibold truncate">📁 ${item.name}</span><span class="font-mono text-[10px] opacity-55 flex-1 truncate max-w-xs sm:px-2">${item.bar}</span><span class="text-right w-20">${item.pct}%</span>`);
+      if (state.metrics.editors) html += simplePanel('Development Environments', 'VS Code 82.5% · Neovim 17.5%');
+      if (state.metrics.operatingSystems) html += simplePanel('Operating Systems Profile', 'macOS 75% · Linux 25%');
+      if (state.metrics.timeOfDay && state.diagrams.timeOfDayChart) html += statRows('Time of Day Productivity', sampleData.timeOfDay, (item) => `<span class="w-24 font-semibold truncate">${item.label}</span><span class="font-mono text-[10px] opacity-55 flex-1 truncate max-w-xs sm:px-2">${item.bar}</span><span class="text-right w-20">${item.pct}%</span>`);
+      if (state.metrics.daysOfWeek && state.diagrams.daysOfWeekChart) html += statRows('Days of Week Distribution', sampleData.daysOfWeek, (item) => `<span class="w-24 font-semibold truncate">📅 ${item.day}</span><span class="font-mono text-[10px] opacity-55 flex-1 truncate max-w-xs sm:px-2">${item.bar}</span><span class="text-right w-20">${item.pct}%</span>`);
+      if (state.metrics.profileViews) html += '<div class="flex items-center justify-between border-t border-dashed border-zinc-700/30 pt-2 text-[10px] opacity-75 font-sans"><span>👥 Total Profile Landing Views:</span><strong>2,410 hits</strong></div>';
+      if (state.metrics.pullRequests || state.metrics.issues) html += `<div class="flex items-center justify-between pt-1 text-[10px] opacity-75 font-sans"><span>🎟️ Dev Registry:</span><strong class="space-x-2">${state.metrics.pullRequests ? '<span>Merged PRs: 32</span>' : ''}${state.metrics.issues ? '<span>Closed Issues: 18</span>' : ''}</strong></div>`;
+      if (state.compactMode && state.diagrams.compactSummary) html += `<div class="p-2.5 rounded border border-dashed mt-4 text-[10px] text-center font-sans ${state.previewTheme === 'dark' ? 'border-[#30363d]' : 'border-[#d0d7de]'}">Focus Area: <strong class="text-indigo-400">TypeScript Dev</strong> (45%)</div>`;
+
+      canvas.innerHTML = `${html}</div>`;
     }
 
-    document.getElementById('cron-select').addEventListener('change', markCustomConfig);
-    document.getElementById('workflow-file').addEventListener('input', markCustomConfig);
-    document.getElementById('section-title').addEventListener('input', markCustomConfig);
-    document.getElementById('time-range').addEventListener('change', markCustomConfig);
-    document.getElementById('preview-style').addEventListener('change', markCustomConfig);
-    document.getElementById('show-title').addEventListener('change', markCustomConfig);
-    document.getElementById('compact-mode').addEventListener('change', markCustomConfig);
-    document.getElementById('show-updated-date').addEventListener('change', markCustomConfig);
-    document.getElementById('show-language-per-repo').addEventListener('change', markCustomConfig);
-    document.getElementById('has-waka-secret').addEventListener('change', markCustomConfig);
-    document.getElementById('has-gh-secret').addEventListener('change', markCustomConfig);
-    document.querySelectorAll('.metric-toggle').forEach((input) => input.addEventListener('change', markCustomConfig));
-    document.querySelectorAll('.preset-button').forEach((button) => {
-      button.addEventListener('click', () => applyPreset(button.dataset.preset));
-    });
-    document.getElementById('toggle-preview-theme').addEventListener('click', () => {
-      darkPreview = !darkPreview;
-      renderPreviewTheme();
-    });
-    document.getElementById('refresh-preview').addEventListener('click', render);
-    document.getElementById('reset-config').addEventListener('click', resetConfig);
-    document.getElementById('copy-readme').addEventListener('click', (event) => {
-      document.getElementById('readme-preview').innerText = generateReadmeSnippet(getConfig());
-      copyText('readme-preview', event.currentTarget);
-    });
-    document.getElementById('copy-markers').addEventListener('click', (event) => copyText('markers-output', event.currentTarget));
-    document.getElementById('copy-yaml').addEventListener('click', (event) => copyText('yaml-output', event.currentTarget));
-    document.getElementById('download-yaml').addEventListener('click', downloadYaml);
-    loadDraft();
-    render();
+    function statRows(title, rows, renderRow) {
+      return `<div class="space-y-1.5 pt-2"><div class="font-bold border-b pb-0.5 opacity-85">${title}</div>${rows.map((item) => `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">${renderRow(item)}</div>`).join('')}</div>`;
+    }
+
+    function languageChart() {
+      return `<div class="p-3 rounded border ${state.previewTheme === 'dark' ? 'bg-[#161b22]/50 border-[#21262d]' : 'bg-[#f6f8fa]/50 border-[#d0d7de]'}"><div class="text-[9px] uppercase font-bold tracking-wider opacity-60 mb-2">Detailed Languages Chart</div><div class="h-3 rounded-full overflow-hidden flex mb-2.5">${sampleData.languages.map((item) => `<div style="width: ${item.pct}%; background-color: ${item.color};" class="h-full"></div>`).join('')}</div><div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[10px]">${sampleData.languages.map((item) => `<div class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full" style="background-color: ${item.color}"></span><span>${item.name}:</span><span class="font-bold">${item.pct}%</span></div>`).join('')}</div></div>`;
+    }
+
+    function simplePanel(title, content) {
+      return `<div class="space-y-1.5 pt-2"><div class="font-bold border-b pb-0.5 opacity-85">${title}</div><div class="text-[10px] opacity-80">${content}</div></div>`;
+    }
+
+    function copyYamlText() {
+      handleCopyText(generateWorkflowYaml(getDashboardConfig()), true);
+    }
+
+    function copyMarkerText() {
+      handleCopyText(README_MARKER, false);
+    }
+
+    function handleCopyText(text, isYamlType) {
+      const safeText = String(text || (isYamlType ? FALLBACK_WORKFLOW_YAML : README_MARKER)).trim();
+      const textarea = document.createElement('textarea');
+      textarea.value = safeText;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if (success) triggerCopyFeedback(isYamlType);
+      else navigator.clipboard.writeText(safeText).then(() => triggerCopyFeedback(isYamlType));
+    }
+
+    function triggerCopyFeedback(isYamlType) {
+      const id = isYamlType ? 'yaml' : 'marker';
+      const btn = document.getElementById(`btn-copy-${id}`);
+      const text = document.getElementById(`copy-${id}-text`);
+      const icon = document.getElementById(`copy-${id}-icon`);
+      if (!btn || !text || !icon) return;
+      const label = isYamlType ? 'Copy YAML' : 'Copy Markers';
+      const normalClass = 'px-2.5 py-1 rounded text-[10px] font-bold tracking-tight transition flex items-center gap-1 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 shadow-xs';
+      btn.className = 'px-2.5 py-1 rounded text-[10px] font-bold tracking-tight transition flex items-center gap-1 bg-emerald-600 text-white shadow-xs';
+      text.innerHTML = 'Copied!';
+      icon.innerHTML = checkIcon();
+      setTimeout(() => {
+        btn.className = normalClass;
+        text.innerHTML = label;
+        icon.innerHTML = '<svg class="w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2" /></svg>';
+      }, 2000);
+    }
+
+    function fillGrid(id, items, renderItem) {
+      const element = document.getElementById(id);
+      if (element) element.innerHTML = items.map(renderItem).join('');
+    }
+
+    function selectedButtonClass() {
+      return 'flex-1 py-1.5 text-xs font-semibold rounded-md border text-center transition bg-white dark:bg-zinc-800 border-zinc-350 dark:border-zinc-700 text-zinc-950 dark:text-zinc-50 shadow-sm';
+    }
+
+    function neutralButtonClass() {
+      return 'flex-1 py-1.5 text-xs font-semibold rounded-md border text-center transition bg-transparent border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300';
+    }
+
+    function selectedChoiceClass() {
+      return 'bg-zinc-900 dark:bg-zinc-100 border-zinc-900 dark:border-zinc-100 text-white dark:text-zinc-950 font-semibold shadow-xs';
+    }
+
+    function defaultChoiceClass() {
+      return 'bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300';
+    }
+
+    function selectedCardClass() {
+      return 'bg-zinc-50 dark:bg-zinc-900 border-zinc-900 dark:border-zinc-200 text-zinc-900 dark:text-zinc-100 shadow-xs';
+    }
+
+    function defaultCardClass() {
+      return 'bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-850 text-zinc-500 hover:border-zinc-350 hover:text-zinc-900 dark:hover:text-zinc-300';
+    }
+
+    function themeActiveClass() {
+      return 'px-2.5 py-0.5 text-[9px] font-bold rounded transition bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50 shadow-xs';
+    }
+
+    function themeInactiveClass() {
+      return 'px-2.5 py-0.5 text-[9px] font-semibold rounded transition text-zinc-500 hover:text-zinc-900';
+    }
+
+    function checkIcon() {
+      return '<svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
+    }
+
+    window.onload = render;
   </script>
 </body>
 </html>
