@@ -67,15 +67,6 @@ Then open:
 http://localhost:4173
 ```
 
-## Project Structure
-
-```txt
-.
-├── AGENTS.md
-├── README.md
-└── index.html
-```
-
 ## Attribution
 
 Generated workflows use:
