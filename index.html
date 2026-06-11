@@ -343,15 +343,9 @@
         <div class="bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex flex-col shadow-sm">
           
           <div class="px-4 py-3 bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-1.5 p-0.5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-250 dark:border-zinc-700 rounded-lg">
-              <button onclick="setPreviewViewMode('empty-live')" id="preview-tab-live" class="px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Live Preview
-              </button>
-              <button onclick="setPreviewViewMode('example-populated')" id="preview-tab-example" class="px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Example
-              </button>
+            <div class="px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 shadow-xs border border-zinc-200 dark:border-zinc-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Example Preview
             </div>
 
             <div class="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 p-0.5 rounded-md border border-zinc-250 dark:border-zinc-750 self-end sm:self-auto">
@@ -530,7 +524,6 @@ jobs:
       emojiStyle: 'sparkles',
       themeMode: 'light',
       activeTab: 'identity',
-      previewViewMode: 'empty-live',
       previewTheme: 'light',
       expandedStep: 1
     };
@@ -762,11 +755,6 @@ ${generateOptions(safeConfig)}`;
       render();
     }
 
-    function setPreviewViewMode(modeId) {
-      state.previewViewMode = modeId;
-      render();
-    }
-
     function setPreviewTheme(themeId) {
       state.previewTheme = themeId;
       render();
@@ -913,7 +901,7 @@ ${generateOptions(safeConfig)}`;
       renderIdentityTab();
       renderMetricsTab();
       renderFrequencyTab();
-      renderPreviewTabButtons();
+      renderPreviewThemeButtons();
       renderStepGuide();
       renderYAML();
       renderLivePreview();
@@ -978,11 +966,7 @@ ${generateOptions(safeConfig)}`;
         </button>`);
     }
 
-    function renderPreviewTabButtons() {
-      const activeClass = 'px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-50 shadow-xs';
-      const inactiveClass = 'px-3 py-1 text-xs font-semibold rounded-md transition flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200';
-      setClass('preview-tab-live', state.previewViewMode === 'empty-live' ? activeClass : inactiveClass);
-      setClass('preview-tab-example', state.previewViewMode === 'example-populated' ? activeClass : inactiveClass);
+    function renderPreviewThemeButtons() {
       setClass('preview-theme-dark', state.previewTheme === 'dark' ? themeActiveClass() : themeInactiveClass());
       setClass('preview-theme-light', state.previewTheme === 'light' ? themeActiveClass() : themeInactiveClass());
     }
