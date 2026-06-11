@@ -481,11 +481,19 @@ jobs:
         with:
           WAKATIME_API_KEY: \${{ secrets.WAKATIME_API_KEY }}
           GH_TOKEN: \${{ secrets.GH_TOKEN }}
-          SHOW_TITLE: "True"
-          TIME_RANGE: "last_7_days"
           SHOW_TOTAL_CODE_TIME: "True"
           SHOW_COMMIT: "True"
-          SHOW_LANGUAGE: "True"`;
+          SHOW_LANGUAGE: "True"
+          SHOW_UPDATED_DATE: "True"
+          SHOW_PROJECTS: "False"
+          SHOW_EDITORS: "False"
+          SHOW_OS: "False"
+          SHOW_LINES_OF_CODE: "False"
+          SHOW_LANGUAGE_PER_REPO: "False"
+          SHOW_LOC_CHART: "False"
+          SHOW_DAYS_OF_WEEK: "False"
+          SHOW_PROFILE_VIEWS: "False"
+          SHOW_SHORT_INFO: "False"`;
 
     const state = {
       title: 'default',
@@ -684,33 +692,27 @@ jobs:
       return Array.isArray(config[key]) && config[key].includes(value);
     }
 
+    function workflowFlag(enabled) {
+      return enabled ? 'True' : 'False';
+    }
+
     function generateOptions(config) {
       const showCommit = ['commit', 'commits_per_day', 'commit_streak'].some((metric) => hasOption(config, 'metrics', metric));
-      const rows = [
-        `          SHOW_TITLE: "${config.showTitle ? 'True' : 'False'}"`
-      ];
-      if (config.showTitle && config.title === 'custom' && String(config.customTitleText || '').trim()) {
-        rows.push(`          SECTION_NAME: "${escapeYamlString(config.customTitleText)}"`);
-      }
-      rows.push(`          TIME_RANGE: "${escapeYamlString(config.timeRange)}"`);
-      rows.push(`          SHOW_TITLE_EMOJI: "${config.emojiStyle && config.emojiStyle !== 'none' ? 'True' : 'False'}"`);
-      if (config.emojiStyle && config.emojiStyle !== 'none') rows.push(`          SYMBOL_VERSION: "${escapeYamlString(config.emojiStyle)}"`);
-      if (config.compactMode) rows.push(`          SHOW_SHORT_INFO: "True"`);
-      rows.push(`          SHOW_UPDATED_DATE: "${hasOption(config, 'metrics', 'coding_time') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_TOTAL_CODE_TIME: "${hasOption(config, 'metrics', 'total') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_COMMIT: "${showCommit ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_LANGUAGE: "${hasOption(config, 'metrics', 'language') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_PROJECTS: "${hasOption(config, 'metrics', 'project') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_EDITORS: "${hasOption(config, 'metrics', 'editor') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_OS: "${hasOption(config, 'metrics', 'operating_system') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_LINES_OF_CODE: "${hasOption(config, 'metrics', 'lines_of_code') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_LOC_CHART: "${hasOption(config, 'metrics', 'lines_of_code') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_PROFILE_VIEWS: "${hasOption(config, 'metrics', 'profile_views') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_PULL_REQUESTS: "${hasOption(config, 'metrics', 'pull_requests') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_ISSUES: "${hasOption(config, 'metrics', 'issues') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_DAYS_OF_WEEK: "${hasOption(config, 'metrics', 'days_of_week') ? 'True' : 'False'}"`);
-      rows.push(`          SHOW_TIME_OF_DAY: "${hasOption(config, 'metrics', 'time_of_day') ? 'True' : 'False'}"`);
+      const showLinesOfCode = hasOption(config, 'metrics', 'lines_of_code');
+      const rows = [];
+      rows.push(`          SHOW_UPDATED_DATE: "${workflowFlag(hasOption(config, 'metrics', 'coding_time'))}"`);
+      rows.push(`          SHOW_TOTAL_CODE_TIME: "${workflowFlag(hasOption(config, 'metrics', 'total'))}"`);
+      rows.push(`          SHOW_COMMIT: "${workflowFlag(showCommit)}"`);
+      rows.push(`          SHOW_LANGUAGE: "${workflowFlag(hasOption(config, 'metrics', 'language'))}"`);
+      rows.push(`          SHOW_PROJECTS: "${workflowFlag(hasOption(config, 'metrics', 'project'))}"`);
+      rows.push(`          SHOW_EDITORS: "${workflowFlag(hasOption(config, 'metrics', 'editor'))}"`);
+      rows.push(`          SHOW_OS: "${workflowFlag(hasOption(config, 'metrics', 'operating_system'))}"`);
+      rows.push(`          SHOW_LINES_OF_CODE: "${workflowFlag(showLinesOfCode)}"`);
       rows.push(`          SHOW_LANGUAGE_PER_REPO: "False"`);
+      rows.push(`          SHOW_LOC_CHART: "${workflowFlag(showLinesOfCode && hasOption(config, 'diagrams', 'language_chart'))}"`);
+      rows.push(`          SHOW_DAYS_OF_WEEK: "${workflowFlag(hasOption(config, 'metrics', 'days_of_week'))}"`);
+      rows.push(`          SHOW_PROFILE_VIEWS: "${workflowFlag(hasOption(config, 'metrics', 'profile_views'))}"`);
+      rows.push(`          SHOW_SHORT_INFO: "${workflowFlag(config.compactMode)}"`);
       return rows.join('\n');
     }
 
